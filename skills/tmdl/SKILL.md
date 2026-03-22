@@ -1,5 +1,5 @@
 ---
-name: tmdl-authoring
+name: tmdl
 description: This skill should be used when the user asks to "edit TMDL", "add a measure", "add a column", "add a column description", "fix summarizeBy", "TMDL syntax", "write a measure in TMDL", "create a calculated column", "add a table description", "fix formatString", "TMDL indentation", or mentions TMDL file editing, TMDL property syntax, or direct semantic model file authoring. Provides expert guidance for authoring and editing TMDL (Tabular Model Definition Language) files directly in Power BI Projects.
 ---
 

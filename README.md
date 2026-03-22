@@ -42,7 +42,7 @@ claude plugin install pbip@power-bi-agentic-development
 | [`tabular-editor-config`](skills/tabular-editor-config/) | tabular-editor | TE3 config files (TMUO, preferences, BPA settings) |
 | [`tabular-editor-docs`](skills/tabular-editor-docs/) | tabular-editor | Local search of Tabular Editor documentation |
 | [`connect-pbid`](skills/connect-pbid/) | pbi-desktop | Connect to PBI Desktop's local AS instance via TOM and ADOMD.NET |
-| [`tmdl-authoring`](skills/tmdl-authoring/) | pbip | Author and edit TMDL files directly in PBIP projects |
+| [`tmdl`](skills/tmdl/) | pbip | Author and edit TMDL files directly in PBIP projects |
 | [`pbip-project-operations`](skills/pbip-project-operations/) | pbip | Cascading renames, project forking, report visual JSON patterns |
 
 ### Commands
