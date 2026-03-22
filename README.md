@@ -14,6 +14,10 @@
 
 ## Installation
 
+These skills are intended for use in Claude Code, Desktop, or Cowork. However, you can use them in other tools, if you wish, like Codex, Gemini CLI, or GitHub Copilot.
+
+To install these skills in Claude Code, enter the following commands in the terminal:
+
 ```bash
 # Add marketplace source (if not already added)
 claude plugin marketplace add data-goblin/power-bi-agentic-development
@@ -23,7 +27,7 @@ claude plugin install tabular-editor@power-bi-agentic-development
 ```
 
 
-## What's Included (v0.4.0)
+## Overview
 
 ### Skills
 
