@@ -1,11 +1,11 @@
 <h1 align="center">power-bi-agentic-development</h1>
 
 <p align="center">
-  Skills and tools for agentic Power BI development
+  A marketplace for skills and tools for agentic Power BI development
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.0-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.4.0-blue" alt="Version">
   <img src="https://img.shields.io/badge/tabular_editor-2%20%7C%203-orange" alt="Tabular Editor">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
 </p>
@@ -13,6 +13,10 @@
 ---
 
 ## Installation
+
+These skills are intended for use in Claude Code, Desktop, or Cowork. However, you can use them in other tools, if you wish, like Codex, Gemini CLI, or GitHub Copilot.
+
+To install these skills in Claude Code, enter the following commands in the terminal:
 
 ```bash
 # Add marketplace source (if not already added)
@@ -23,85 +27,44 @@ claude plugin install tabular-editor@power-bi-agentic-development
 ```
 
 
-## What's Included (v0.2.0)
+## Overview
 
 ### Skills
 
-| Skill | Description |
-|-------|-------------|
-| `bpa-rules` | Create and improve Best Practice Analyzer rules |
-| `c-sharp-scripting` | C# scripting for Tabular Editor (TOM API, LINQ, WinForms) |
-| `c-sharp-macros` | Tabular Editor macro development |
-| `tabular-editor-cli` | Tabular Editor CLI usage and automation |
-| `tabular-editor-config` | TE3 config files (TMUO, preferences, BPA settings) |
-| `tabular-editor-docs` | Local search of Tabular Editor documentation |
+| Skill | Plugin | Description |
+|-------|--------|-------------|
+| [`bpa-rules`](skills/bpa-rules/) | tabular-editor | Create and improve Best Practice Analyzer rules |
+| [`c-sharp-scripting`](skills/c-sharp-scripting/) | tabular-editor | C# scripting for Tabular Editor (TOM API, LINQ, WinForms) |
+| [`c-sharp-macros`](skills/c-sharp-macros/) | tabular-editor | Tabular Editor macro development |
+| [`tabular-editor-cli`](skills/tabular-editor-cli/) | tabular-editor | Tabular Editor CLI usage and automation |
+| [`tabular-editor-config`](skills/tabular-editor-config/) | tabular-editor | TE3 config files (TMUO, preferences, BPA settings) |
+| [`tabular-editor-docs`](skills/tabular-editor-docs/) | tabular-editor | Local search of Tabular Editor documentation |
+| [`connect-pbid`](skills/connect-pbid/) | pbi-desktop | Connect to PBI Desktop's local AS instance via TOM and ADOMD.NET |
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
-| `/suggest-rule` | Generate BPA rules from descriptions |
+| Command | Plugin | Description |
+|---------|--------|-------------|
+| [`/suggest-rule`](commands/suggest-rule.md) | tabular-editor | Generate BPA rules from descriptions |
 
 ### Agents
 
-| Agent | Description |
-|-------|-------------|
-| `bpa-expression-helper` | Debug and improve BPA rule expressions |
-
-### Scripts
-
-| Script | Description |
-|--------|-------------|
-| `bpa_rules_audit.py` | Comprehensive audit of BPA rules across all sources (built-in, URL, model, user, machine) |
-
-
-## Requirements
-
-- [Tabular Editor 2](https://github.com/TabularEditor/TabularEditor/releases) or [Tabular Editor 3](https://tabulareditor.com/)
-- For XMLA operations: Power BI Premium or Fabric capacity with XMLA read/write enabled
-- For `tabular-editor-docs` skill: Clone [TabularEditorDocs](https://github.com/TabularEditor/TabularEditorDocs) locally
-
-
-## Skills Overview
-
-### BPA Rules (`bpa-rules`)
-
-Create Best Practice Analyzer rules for semantic model validation:
-- Rule JSON structure and schema
-- Dynamic LINQ expressions for detecting violations
-- FixExpression for auto-remediation
-- TMDL annotation patterns
-
-### C# Scripting (`c-sharp-scripting`)
-
-Write C# scripts to manipulate semantic model metadata:
-- TOM API access (Model, Tables, Measures, Columns, etc.)
-- LINQ fundamentals for filtering and transforming collections
-- WinForms patterns for interactive dialogs
-- Selected object patterns for IDE use
-- Helper methods (Output, SelectMeasure, FormatDax, etc.)
-
-### Tabular Editor CLI (`tabular-editor-cli`)
-
-Automate model operations via command line:
-- Script execution against XMLA endpoints
-- CI/CD integration patterns
-- Authentication (Azure AD, Service Principal)
-- Deployment and schema comparison
-
-### Tabular Editor Config (`tabular-editor-config`)
-
-Manage Tabular Editor configuration files:
-- TMUO (user options) file structure
-- Preferences JSON schema
-- BPA rule file locations
-- Workspace connections
+| Agent | Plugin | Description |
+|-------|--------|-------------|
+| [`bpa-expression-helper`](agents/bpa-expression-helper.md) | tabular-editor | Debug and improve BPA rule expressions |
 
 
 ## Related Projects
 
 - [fabric-cli-plugin](https://github.com/data-goblin/fabric-cli-plugin) - Microsoft Fabric CLI skills and MCP servers
 - [TabularEditor/BestPracticeRules](https://github.com/TabularEditor/BestPracticeRules) - Standard BPA rule collections
+
+
+## Use or re-use of these skills
+
+These skills are intended for free community use.
+
+You do not have the license to copy and incorporate them into your own products, trainings, courses, or tools. If you copy these skills - manually or by using an agent to rewrite them - you must include attribution and a link to this original project.
 
 
 <br>

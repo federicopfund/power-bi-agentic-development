@@ -558,26 +558,30 @@ Detailed documentation for each object type in `object-types/`:
 
 ## Example Scripts
 
-Example scripts organized by category in `examples/`:
+180 working `.csx` scripts organized by category in `examples/`. Before writing a script from scratch, check if a relevant example already exists -- read the example, adapt it to the task, and modify as needed.
 
-### Structure & Organization
-- `columns/` - Column properties, hiding, data types
-- `relationships/` - Relationship creation and management
-- `display-folders/` - Organize objects into folders
-- `format-strings/` - Currency, percentage, date formats
-
-### Measures & Calculations
-- `measures/` - Measure CRUD and time intelligence
-- `calculation-groups/` - Time intelligence calc groups
-
-### Security
-- `roles/` - Role and RLS configuration
-
-### Bulk Operations
-- `bulk-operations/` - Model initialization, batch updates
-
-### Interactive Scripts
-- `ui-dialogs/` - WinForms input dialogs
+| Category | Scripts | Description |
+|----------|---------|-------------|
+| `bulk-operations/` | 8 | Model initialization, batch updates, clean names, sync folders, validate |
+| `calculation-groups/` | 2 | Time intelligence, currency conversion |
+| `columns/` | 20 | Data types, hiding, sorting, encoding hints, cardinality, properties |
+| `cultures/` | 4 | Add/delete cultures, list, modify translations |
+| `display-folders/` | 8 | Organize by type, clear, rename, add/remove folders |
+| `evaluate-dax/` | 5 | Execute DAX, scalar queries, table queries, column sizes, optimize |
+| `format-dax/` | 8 | Format measures, calculated columns/tables, KPIs, detail rows |
+| `format-strings/` | 6 | Apply by name/pattern, custom formats, dynamic format strings |
+| `functions/` | 4 | Add/delete/list/modify shared M functions |
+| `hierarchies/` | 4 | Add/delete/list/modify hierarchies |
+| `kpis/` | 4 | Add/delete/list/modify KPIs |
+| `measures/` | 18 | Full CRUD, time intelligence, bulk create, move, hide/unhide |
+| `model/` | 10 | Properties, compatibility level, dependencies, refresh, export stats |
+| `partitions/` | 6 | Refresh, find-replace M, incremental refresh, hybrid tables |
+| `perspectives/` | 4 | Add/delete/list/modify perspectives |
+| `relationships/` | 5 | Create, naming conventions, RI violations, integrity, properties |
+| `roles/` | 7 | Add/delete roles, members, RLS, OLS configuration |
+| `shared-expressions/` | 6 | Named expressions, range parameters, M functions |
+| `svg-measures/` | 15 | Bar charts, bullet charts, dumbbells, lollipops, waterfall, jitter |
+| `tables/` | 36 | All table types (import, DirectQuery, Direct Lake, calculated, field parameter, date), refresh policies, RLS/OLS, properties |
 
 
 ## Common Workflows
@@ -736,7 +740,7 @@ if(majorVersion >= 3) {
 
 ### Reference Files
 - `object-types/` - Detailed API docs per object type
-- `examples/` - Working script examples
+- `examples/` - 180 working `.csx` scripts across 20 categories; always check here before writing from scratch
 
 ### External References
 - [Tabular Editor Advanced Scripting](https://docs.tabulareditor.com/te2/Advanced-Scripting.html)
