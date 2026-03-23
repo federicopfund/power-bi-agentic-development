@@ -16,7 +16,9 @@
 
 These skills are intended for use in Claude Code, Desktop, or Cowork. However, you can use them in other tools, if you wish, like Codex, Gemini CLI, or GitHub Copilot.
 
-To install these skills in Claude Code, enter the following commands in the terminal:
+### Claude Code
+
+Enter the following commands in the terminal:
 
 ```bash
 # Add marketplace source (if not already added)
@@ -24,6 +26,7 @@ claude plugin marketplace add data-goblin/power-bi-agentic-development
 
 # Install plugins
 claude plugin install tabular-editor@power-bi-agentic-development
+claude plugin install semantic-models@power-bi-agentic-development
 claude plugin install pbi-desktop@power-bi-agentic-development
 claude plugin install pbip@power-bi-agentic-development
 
@@ -31,6 +34,30 @@ claude plugin install pbip@power-bi-agentic-development
 claude plugin marketplace add data-goblin/fabric-cli-plugin
 claude plugin install fabric-cli-plugin@fabric-cli-plugin
 ```
+
+### GitHub Copilot
+
+The standalone [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli) supports plugin installation from GitHub repos:
+
+```bash
+copilot plugin install data-goblin/power-bi-agentic-development
+```
+
+In **VS Code**, you can use skills by placing them in `.github/skills/<skill-name>/SKILL.md` with YAML frontmatter:
+
+```yaml
+---
+name: 'bpa-rules'
+description: 'Create and improve Best Practice Analyzer rules for Tabular Editor'
+user-invocable: true
+---
+```
+
+Then paste the skill content below the frontmatter. Skills appear as slash commands in Copilot Chat.
+
+You can also drag any `.md` skill file into Copilot Chat or reference it with `#file` to use as one-off context.
+
+> **Note:** Some plugin features like agents and hooks may behave differently across tools. The core knowledge in the skill files is tool-agnostic.
 
 
 ## Overview
@@ -42,7 +69,7 @@ claude plugin install fabric-cli-plugin@fabric-cli-plugin
 | [`bpa-rules`](plugins/tabular-editor/skills/bpa-rules/) | tabular-editor | Create and improve Best Practice Analyzer rules |
 | [`c-sharp-scripting`](plugins/tabular-editor/skills/c-sharp-scripting/) | tabular-editor | C# scripting and macros for Tabular Editor (TOM API, LINQ, WinForms, MacroActions.json) |
 | [`te2-cli`](plugins/tabular-editor/skills/te2-cli/) | tabular-editor | Tabular Editor 2 CLI usage and automation |
-| [`standardize-naming-conventions`](plugins/semantic-models/skills/standardize-naming-conventions/) | semantic-models | Audit and standardize naming conventions in TMDL semantic models |
+| [`standardize-naming-conventions`](plugins/semantic-models/skills/standardize-naming-conventions/) | semantic-models | Audit and standardize naming conventions in semantic models |
 | [`te-docs`](plugins/tabular-editor/skills/te-docs/) | tabular-editor | Tabular Editor documentation search, TE3 config files (.tmuo, preferences) |
 | [`connect-pbid`](plugins/pbi-desktop/skills/connect-pbid/) | pbi-desktop | Connect to PBI Desktop's local AS instance via TOM and ADOMD.NET |
 | [`tmdl`](plugins/pbip/skills/tmdl/) | pbip | Author and edit TMDL files directly in PBIP projects |
