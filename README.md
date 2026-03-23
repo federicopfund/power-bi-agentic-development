@@ -42,6 +42,7 @@ claude plugin install fabric-cli-plugin@fabric-cli-plugin
 | [`bpa-rules`](plugins/tabular-editor/skills/bpa-rules/) | tabular-editor | Create and improve Best Practice Analyzer rules |
 | [`c-sharp-scripting`](plugins/tabular-editor/skills/c-sharp-scripting/) | tabular-editor | C# scripting and macros for Tabular Editor (TOM API, LINQ, WinForms, MacroActions.json) |
 | [`te2-cli`](plugins/tabular-editor/skills/te2-cli/) | tabular-editor | Tabular Editor 2 CLI usage and automation |
+| [`standardize-naming-conventions`](plugins/tabular-editor/skills/standardize-naming-conventions/) | tabular-editor | Audit and standardize naming conventions in TMDL semantic models |
 | [`te-docs`](plugins/tabular-editor/skills/te-docs/) | tabular-editor | Tabular Editor documentation search, TE3 config files (.tmuo, preferences) |
 | [`connect-pbid`](plugins/pbi-desktop/skills/connect-pbid/) | pbi-desktop | Connect to PBI Desktop's local AS instance via TOM and ADOMD.NET |
 | [`tmdl`](plugins/pbip/skills/tmdl/) | pbip | Author and edit TMDL files directly in PBIP projects |
