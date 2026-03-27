@@ -46,7 +46,7 @@ All formatting values in visual.json use `expr` wrappers with type-specific suff
 | Integer | `{"expr": {"Literal": {"Value": "14L"}}}` | `L` suffix -- pixel counts, enum values |
 | Decimal | `{"expr": {"Literal": {"Value": "2.4M"}}}` | `M` suffix -- money/decimal precision |
 | Boolean | `{"expr": {"Literal": {"Value": "true"}}}` | Lowercase, no quotes, no suffix |
-| DateTime | `{"expr": {"Literal": {"Value": "datetime'2024-01-15T00:00:00.000000'"}}}` | Single-quoted datetime string (closing `'` required) |
+| DateTime | `{"expr": {"Literal": {"Value": "datetime'2024-01-15T00:00:00.0000000'"}}}` | Single-quoted datetime string (closing `'` required) |
 | Color (hex) | `{"expr": {"Literal": {"Value": "'#FF0000'"}}}` | Inner single quotes; 6-digit RGB or 8-digit ARGB |
 | Null | `{"expr": {"Literal": {"Value": "null"}}}` | Lowercase, no quotes, no suffix |
 | Theme color | `{"expr": {"ThemeDataColor": {"ColorId": 0, "Percent": 0}}}` | Percent: -1.0 (darker) to 1.0 (lighter), 0 = exact |
@@ -84,7 +84,8 @@ Six patterns for referencing fields in queries and expressions:
 | tableEx | Values |
 | pivotTable | Rows, Columns, Values |
 | slicer | Values |
-| advancedSlicerVisual / listSlicer | Values |
+| advancedSlicerVisual | Values |
+| listSlicer | Values (unverified — not present in K201 examples; verify against a live PBI Desktop export) |
 | pieChart / donutChart | Category, Y |
 | lineChart | Category, Y (also Y2 for combo) |
 | areaChart / stackedAreaChart / hundredPercentStackedAreaChart | Category, Y (also Series) |
@@ -96,7 +97,7 @@ Six patterns for referencing fields in queries and expressions:
 | waterfallChart | Category, Y |
 | scatterChart | Category, X, Y, Size, Tooltips |
 | gauge | Y, TargetValue |
-| kpi | Indicator, Goal, Goals, TrendLine |
+| kpi | Indicator, Goal, TrendLine |
 | textbox | (none -- uses objects.general.paragraphs) |
 | shape / actionButton / image | (none -- uses objects for shape/icon/image config) |
 | scriptVisual / pythonVisual | Values |

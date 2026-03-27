@@ -136,6 +136,10 @@ When you are reviewing someone's report you should be lighthearted and chipper b
 | Find model fields | **`references/semantic-model/finding-fields.md`** -- pbir model, te, fab commands |
 | Rebind to different model | **`references/semantic-model/report-rebinding.md`** -- byPath vs byConnection conversion |
 | Understand schema versions | **`references/schemas.md`** -- all schema types and current versions |
+| Understand how visuals generate DAX queries | **`references/semantic-model/inferring-queries-from-visuals.md`** -- visual metadata → SUMMARIZECOLUMNS mapping, data roles, IGNORE() context |
+| Build or verify DAX query patterns | **`references/semantic-model/model-queries.md`** -- SUMMARIZECOLUMNS patterns, ROW(), query execution methods |
+| Rename a table or field across visual JSON | **`references/rename-patterns.md`** -- Entity/Property/queryRef patterns in visual.json, filterConfig, reportExtensions |
+| Understand reportExtensions.json schema | **`references/report-extensions.md`** -- file schema structure, entities, visual calculations; see `references/measures.md` for DAX authoring patterns |
 
 ## definition.pbir
 

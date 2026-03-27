@@ -251,6 +251,30 @@ jq empty "$THEME"
 
 **Example:** Dashboard page has different background than detail pages
 
+## textClass Defaults (CY24SU10 base theme)
+
+Power BI's built-in base theme (`CY24SU10`) defines these default text class values. Custom themes inherit these if not overridden.
+
+| textClass | fontSize | fontFace | color |
+|-----------|----------|----------|-------|
+| `callout` | 45 | DIN | #252423 |
+| `title` | 12 | DIN | #252423 |
+| `header` | 12 | Segoe UI Semibold | #252423 |
+| `label` | 10 | Segoe UI | #252423 |
+
+Override in a custom theme:
+
+```json
+{
+  "textClasses": {
+    "title": {"fontSize": 14, "fontFace": "Segoe UI"},
+    "label": {"fontSize": 11, "fontFace": "Segoe UI"}
+  }
+}
+```
+
+**Source:** `examples/K201-MonthSlicer.Report/StaticResources/SharedResources/BaseThemes/CY24SU10.json`
+
 ## Inspecting and Modifying Themes
 
 **CRITICAL:** Theme files can be 75KB+ with 2000+ lines. Use targeted `jq` queries to read specific sections rather than loading the entire file.
@@ -512,6 +536,8 @@ Target specific filter types using `$id`:
 - `"$id": "Available"` - Style filters in "Filters on this page" section
 - `"$id": "Applied"` - Style actively applied filters
 - `"$id": "GUID"` - Style specific filter by its ID from filterConfig
+
+**Note on filter card locations:** The `$id`-targeted card states (`Available`, `Applied`) belong at `visualStyles["*"]["*"].filterCard`. Basic filter card styling (background, border without `$id` state selectors) can also appear at `visualStyles["page"]["*"].filterCard` — this is confirmed in `SqlbiDataGoblinTheme.json` and serves as a simpler base style fallback.
 
 ### ThemeDataColor with Percent
 

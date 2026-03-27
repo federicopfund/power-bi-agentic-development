@@ -77,13 +77,14 @@ SUMMARIZECOLUMNS(
 
 | Visual | Grouping Roles | Measure Roles |
 |--------|----------------|---------------|
-| Card | - | Values |
+| card (old card) | - | Values |
+| cardVisual (new card) | - | Data |
 | Line/Column Chart | Category | Y |
 | Bar Chart | Category | Y |
 | Slicer | Values | - |
-| KPI | TrendLine | Indicator, Goal |
+| KPI | TrendLine (when bound) | Indicator, Goal |
 | Table | Values (dims) | Values (measures) |
-| Scatter | Category, X, Y | Size, Tooltips |
+| Scatter | Category | X, Y, Size, Tooltips |
 
 ### 3. Filters → Variables
 
@@ -131,6 +132,43 @@ SUMMARIZECOLUMNS(
 ```
 
 Note: Cards use `IGNORE()` since there are no grouping columns.
+
+### cardVisual (New Card)
+
+The new card visual uses the **`Data`** role, not `Values`. This is a direct conflict with the old `card` — use the correct role name for the visual type.
+
+**Metadata:**
+
+```json
+{
+  "visualType": "cardVisual",
+  "query": {
+    "queryState": {
+      "Data": {
+        "projections": [{
+          "field": {
+            "Measure": {
+              "Expression": {"SourceRef": {"Entity": "Sales"}},
+              "Property": "Total Revenue"
+            }
+          }
+        }]
+      }
+    }
+  }
+}
+```
+
+**Query:**
+
+```dax
+EVALUATE
+SUMMARIZECOLUMNS(
+    "Total_Revenue", IGNORE('Sales'[Total Revenue])
+)
+```
+
+Note: Same no-grouping `IGNORE()` pattern as the old card.
 
 ### Line chart
 
@@ -369,7 +407,7 @@ Note: When a chart has grouping columns (like this line chart with `'Date'[Month
 - `SourceRef.Schema = "extension"`
 - Add to DEFINE section
 - Include in SUMMARIZECOLUMNS without `IGNORE()` (charts with grouping columns)
-- Use `IGNORE()` only when there are no grouping columns (cards/KPIs)
+- Use `IGNORE()` only when there are **no grouping columns** (cards and KPIs without a TrendLine bound). A KPI with a TrendLine has a grouping column — do not use `IGNORE()` in that case.
 
 **Alias naming:**
 

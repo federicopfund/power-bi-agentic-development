@@ -74,7 +74,7 @@ Static values with type-specific formatting.
 ### DateTime Literals
 
 ```json
-"expr": {"Literal": {"Value": "datetime'2024-01-15T00:00:00.000000'"}}
+"expr": {"Literal": {"Value": "datetime'2024-01-15T00:00:00.0000000'"}}
 ```
 
 ### Null Literals
@@ -608,8 +608,8 @@ Some properties require nested expr structures:
 |-------|-------|-----|
 | `"smooth"` in JSON | Missing inner quotes | Use `"'smooth'"` |
 | `"Value": 50` | Missing D suffix | Use `"50D"` |
-| `"Value": "true"` | Quotes around boolean | Use `true` (no quotes) |
-| `"Value": "True"` | Wrong case | Use `true` (lowercase) |
+| `"Value": true` | Bare JSON boolean — `Value` field must always be a JSON string | Use `"Value": "true"` (string with quotes) |
+| `"Value": "True"` | Wrong case | Use `"Value": "true"` (lowercase) |
 | Measure not found | Missing Schema field | Add `"Schema": "extension"` for report measures |
 
 ## Schema Definition Path
