@@ -1,16 +1,20 @@
 <h1 align="center">power-bi-agentic-development</h1>
 
 <p align="center">
-  A marketplace for agentic Power BI development - Teach your agent to do literally anything in Power BI
+  A centralized marketplace for everything agentic Power BI development <br/>
+  <i> Teach agents like Claude Code or GitHub Copilot to do literally anything in Power BI </i>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.11.4-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.13.0-blue" alt="Version">
   <img src="https://img.shields.io/badge/tabular_editor-2%20%7C%203-orange" alt="Tabular Editor">
   <img src="https://img.shields.io/badge/license-GPL--3.0-green" alt="License">
 </p>
 
+> [!NOTE]
 > **These skills are under active development with a daily release cadence.** Breaking changes, new additions, and restructuring may occur frequently.
+>
+> Please create an issue if you have any questions, issues, or just want help. I am currently on parental leave, but I will make time to help you, if you need it.
 
 ---
 
@@ -54,25 +58,11 @@ claude plugin install fabric-cli@power-bi-agentic-development
 
 ### GitHub Copilot
 
-The standalone [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli) supports plugin installation from GitHub repos:
+The standalone [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli) supports plugin installation from GitHub repos. Consult the Copilot documentation for specifics if you have difficulties with installation, or open an issue in this repo.
 
 ```bash
 copilot plugin install data-goblin/power-bi-agentic-development
 ```
-
-In **VS Code**, you can use skills by placing them in `.github/skills/<skill-name>/SKILL.md` with YAML frontmatter:
-
-```yaml
----
-name: 'bpa-rules'
-description: 'Create and improve Best Practice Analyzer rules for Tabular Editor'
-user-invocable: true
----
-```
-
-Then paste the skill content below the frontmatter. Skills appear as slash commands in Copilot Chat.
-
-You can also drag any `.md` skill file into Copilot Chat or reference it with `#file` to use as one-off context.
 
 > **Note:** Some plugin features like agents and hooks may behave differently across tools. The core knowledge in the skill files is tool-agnostic.
 
@@ -83,30 +73,32 @@ You can also drag any `.md` skill file into Copilot Chat or reference it with `#
 
 | Skill | Plugin | Description |
 |-------|--------|-------------|
-| [`bpa-rules`](plugins/tabular-editor/skills/bpa-rules/) | tabular-editor | Create and improve Best Practice Analyzer rules |
-| [`c-sharp-scripting`](plugins/tabular-editor/skills/c-sharp-scripting/) | tabular-editor | C# scripting and macros for Tabular Editor (CRUD of model objects and common patterns for streamlining model dev) |
-| [`te2-cli`](plugins/tabular-editor/skills/te2-cli/) | tabular-editor | Tabular Editor 2 CLI usage and automation |
+| [`bpa-rules`](plugins/tabular-editor/skills/bpa-rules/) | tabular-editor | Create and improve Best Practice Analyzer rules for models |
+| [`c-sharp-scripting`](plugins/tabular-editor/skills/c-sharp-scripting/) | tabular-editor | C# scripting and macros for TE |
+| [`te2-cli`](plugins/tabular-editor/skills/te2-cli/) | tabular-editor | Tabular Editor 2 CLI usage and automation (not TE3) |
 | [`te-docs`](plugins/tabular-editor/skills/te-docs/) | tabular-editor | Tabular Editor documentation search, TE3 config files (.tmuo, preferences). Uses [`pbi-search`](https://github.com/data-goblin/pbi-search) CLI |
 | [`connect-pbid`](plugins/pbi-desktop/skills/connect-pbid/) | pbi-desktop | Explore, query, and modify a model in Power BI Desktop with only a skill |
 | [`tmdl`](plugins/pbip/skills/tmdl/) | pbip | Author and edit TMDL files directly |
 | [`pbip`](plugins/pbip/skills/pbip/) | pbip | Power BI Project (PBIP) format, structure, and file types |
 | [`pbir-format`](plugins/pbip/skills/pbir-format/) | pbip | Author and edit PBIR metadata files directly (visual.json, report.json, themes, filters, report extensions / thin measures, visual calculations) |
-| [`pbi-report-design`](plugins/reports/skills/pbi-report-design/) (Very WIP) | reports | Power BI report design and style |
-| [`modifying-theme-json`](plugins/reports/skills/modifying-theme-json/) (WIP) | reports | Design, enforce, audit, and validate Power BI report themes |
+| [`pbi-report-design`](plugins/reports/skills/pbi-report-design/) (Very WIP) | reports | Power BI report best practices, design and style. Very bare bones right now. |
+| [`modifying-theme-json`](plugins/reports/skills/modifying-theme-json/) (WIP) | reports | Helping agents work with theme files |
 | [`deneb-visuals`](plugins/reports/skills/deneb-visuals/) | reports | Deneb visuals with Vega and Vega-Lite specs |
-| [`r-visuals`](plugins/reports/skills/r-visuals/) | reports | R visuals (ggplot2) in Power BI reports |
-| [`python-visuals`](plugins/reports/skills/python-visuals/) | reports | Python visuals (matplotlib/seaborn) in Power BI reports |
+| [`r-visuals`](plugins/reports/skills/r-visuals/) | reports | Custom R visuals in Power BI reports |
+| [`python-visuals`](plugins/reports/skills/python-visuals/) | reports | Custom Python visuals in Power BI reports |
 | [`svg-visuals`](plugins/reports/skills/svg-visuals/) | reports | SVG visuals via DAX measures in Power BI reports |
-| [`review-report`](plugins/reports/skills/review-report/) (WIP) | reports | Review report quality, usage, performance, distribution, and design |
+| [`review-report`](plugins/reports/skills/review-report/) (WIP) | reports | Review Power BI reports, focuses on usage metrics (if released) and best practices (if in dev) |
+| [`pbir-cli`](plugins/reports/skills/pbir-cli/) | reports | Programmatic report manipulation via the [`pbir` CLI](https://github.com/data-goblin/pbir.tools-private-beta) (closed beta; not yet released) |
 | [`standardize-naming-conventions`](plugins/semantic-models/skills/standardize-naming-conventions/) | semantic-models | Audit and standardize naming conventions in semantic models |
 | [`review-semantic-model`](plugins/semantic-models/skills/review-semantic-model/) (Very WIP) | semantic-models | Review semantic models for quality, performance, AI readiness, and best practices |
-| [`refreshing-semantic-model`](plugins/semantic-models/skills/refreshing-semantic-model/) | semantic-models | Trigger, monitor, and view history of semantic model refreshes |
+| [`refreshing-semantic-model`](plugins/semantic-models/skills/refreshing-semantic-model/) | semantic-models | Trigger or troubleshoot refreshes |
 | [`lineage-analysis`](plugins/semantic-models/skills/lineage-analysis/) | semantic-models | Trace downstream reports from a semantic model across workspaces |
-| [`fabric-cli`](plugins/fabric-cli/skills/fabric-cli/) | fabric-cli | Fabric CLI (fab) for any remote operation in Power BI or Fabric (works on Pro, PPU) |
+| [`fabric-cli`](plugins/fabric-cli/skills/fabric-cli/) | fabric-cli | Fabric CLI (fab) for any remote operation in Power BI or Fabric (Fabric not required; works fully on Pro, PPU) |
 
 ### Commands
 
-> In Claude Code, slash commands and skills have coalesced. Commands are simply more prescriptive workflows, but they take the same structure as a skill. Skills are not workflows nor should they be prescriptive.
+> In Claude Code, slash commands and skills have coalesced. Commands are simply more prescriptive workflows, but they take the same structure as a skill.
+> Skills are not workflows nor should they be prescriptive.
 
 | Command | Plugin | Description |
 |---------|--------|-------------|
@@ -114,9 +106,18 @@ You can also drag any `.md` skill file into Copilot Chat or reference it with `#
 | [`/audit-context`](plugins/fabric-cli/commands/audit-context.md) | fabric-cli | Review project context files (CLAUDE.md, agents.md, memory files) |
 | [`/migrating-fabric-trial-capacities`](plugins/fabric-cli/commands/migrating-fabric-trial-capacities.md) | fabric-cli | Migrate workspaces from trial to production capacity |
 
+### Hooks
+
+> Hooks run automatically to validate files after edits.
+
+| Hook | Plugin | Trigger | Description |
+|------|--------|---------|-------------|
+| PBIR validation hooks (2) | pbip | `Write\|Edit` or `Bash` on `.Report/` `.json`/`.pbir` files | Automatically validates pbir; prevents agent mistakes |
+| TMDL validation hooks (2) | pbip | `Write\|Edit` or `Bash` on `.tmdl` files | Automatically validates TMDL; prevents agent mistakes; doesn't parse DAX/M |
+
 ### Agents
 
-> Subagents have isolated context windows and are appropriate for tasks that benefit from this isolation. Agents are not for specialization or enhancing context; that is the purview of a skill usable by your main agent _or_ a subagent.
+> Subagents for reviewing or providing feedback on agent (or less frequently human) work
 
 | Agent | Plugin | Description |
 |-------|--------|-------------|
@@ -130,18 +131,11 @@ You can also drag any `.md` skill file into Copilot Chat or reference it with `#
 | [`python-reviewer`](plugins/reports/agents/python-reviewer.md) | reports | Review Python visual scripts (matplotlib/seaborn) for Power BI conventions |
 
 
-## Related Projects
-
-- [fabric-cli-plugin](https://github.com/data-goblin/fabric-cli-plugin) - Microsoft Fabric CLI skills and MCP servers
-- [TabularEditor/BestPracticeRules](https://github.com/TabularEditor/BestPracticeRules) - Standard BPA rule collections
-- **pbir-cli** (not yet released) - CLI tool for PBIR report operations (create, validate, modify). Some skills in the `reports` plugin reference `pbir` CLI commands that will become available when this tool is released. In the meantime, use direct JSON editing with the `pbir-format` skill from the `pbip` plugin.
-
-
 ## Use or re-use of these skills
 
 These skills are intended for free community use.
 
-You do not have the license to copy and incorporate them into your own products, trainings, courses, or tools. If you copy these skills - manually or by using an agent to rewrite them - you must include attribution and a link to this original project.
+You do not have the license to copy and incorporate them into your own products, trainings, courses, or tools. If you copy these skills - manually or by using an agent to rewrite them - you must include attribution and a link to this original project. That includes you, Microsoft.
 
 
 <br>
