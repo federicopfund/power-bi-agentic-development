@@ -87,7 +87,7 @@ Or keep it for future use; an empty runner consumes no capacity when idle.
 
 The most valuable use case: see the actual data a semantic model's import partition returns, validate intermediate transformation steps, limit row counts for large tables, and optionally write results to a local file or OneLake.
 
-Extract partition expressions with `te get <Table> -q expression` and shared M parameters with `te ls expressions`. Inline the parameter values as `shared` declarations, then truncate the `let...in` to end at any step to see intermediate results.
+Extract partition expressions and shared M parameters from the semantic model definition using `fab get` (or `te get` if the Tabular Editor CLI is available). Inline the parameter values as `shared` declarations, then truncate the `let...in` to end at any step to see intermediate results.
 
 See **`references/partition-preview.md`** for the full workflow: extracting expressions, inlining parameters, step-by-step preview, row limiting, and output options (local file, OneLake, lakehouse table).
 

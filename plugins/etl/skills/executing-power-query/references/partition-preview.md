@@ -14,40 +14,55 @@ The expression references shared M parameters (like `#"SqlEndpoint"`, `#"Databas
 
 ## Extracting the Expression
 
-### Get the Partition M Expression
+### Get the Table TMDL (Contains Partition Expression)
 
 ```bash
-te get <TableName> -s "<Workspace>" -d "<Model>" -q expression
+fab get "<Workspace>.Workspace/<Model>.SemanticModel" -f \
+  -q "definition.parts[?path=='definition/tables/<TableName>.tmdl'].payload"
 ```
 
-This returns the M expression as a JSON-escaped string. For example:
+The TMDL output contains the partition's M expression in a `partition` block:
 
 ```
-"let\n    Source = Sql.Database(#\"SqlEndpoint\",#\"Database\"),\n    Data = Source{[Schema=\"Factview\",Item=\"Budget\"]}[Data],\n    #\"Select Columns\" = Table.SelectColumns(Data, {\"Customer Key\", \"Month\", \"Total Budget\"})\nin\n    #\"Select Columns\""
+partition Orders = m
+    mode: import
+    source =
+        let
+            Source = Sql.Database(#"SqlEndpoint",#"Database"),
+            Data = Source{[Schema="Factview",Item="Orders"]}[Data],
+            #"Select Columns" = Table.RemoveColumns(Data, "DWCreatedDate")
+        in
+            #"Select Columns"
 ```
+
+Extract the M expression from between `source =` and the end of the partition block.
 
 ### Get Shared M Parameters
 
 ```bash
-te ls -s "<Workspace>" -d "<Model>" expressions
+fab get "<Workspace>.Workspace/<Model>.SemanticModel" -f \
+  -q "definition.parts[?path=='definition/expressions.tmdl'].payload"
 ```
 
-Returns parameter names, kinds, and values:
+Returns TMDL expression definitions:
 
-```json
-[
-  {"name": "SqlEndpoint", "kind": "M", "expression": "\"myserver.database.windows.net\" meta [...]"},
-  {"name": "Database", "kind": "M", "expression": "\"MyDatabase\" meta [...]"}
-]
+```
+expression SqlEndpoint = "te3-training-eu.database.windows.net" meta [IsParameterQuery=true, ...]
+expression Database = "SpacePartsCoDW" meta [IsParameterQuery=true, ...]
 ```
 
-Extract the actual values from the expression strings (the quoted string before `meta`).
+Extract the quoted string value before `meta` for each parameter.
 
-### Get Expression for a Specific Partition
-
-If a table has multiple partitions (e.g., incremental refresh):
+### Alternative: Using `te` CLI (If Available)
 
 ```bash
+# Direct expression extraction (returns JSON-escaped string)
+te get <TableName> -s "<Workspace>" -d "<Model>" -q expression
+
+# List all shared expressions with values
+te ls -s "<Workspace>" -d "<Model>" expressions
+
+# Specific partition (for incremental refresh tables with multiple partitions)
 te get <TableName>/<PartitionName> -s "<Workspace>" -d "<Model>" -q expression
 ```
 
