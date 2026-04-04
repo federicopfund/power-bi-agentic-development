@@ -86,7 +86,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 ### Available plugins for Power BI and Fabric
 
 <details>
-<summary><img src="media/icons/tabular-editor.svg" alt="" height="16"> <strong>tabular-editor</strong></summary>
+<summary><img src="media/icons/tabular-editor.svg" alt="" height="20"> <strong>tabular-editor</strong> &ensp; BPA rules, C# scripting, and CLI automation for Tabular Editor</summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -100,7 +100,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><img src="media/icons/pbi-desktop.svg" alt="" height="16"> <strong>pbi-desktop</strong></summary>
+<summary><img src="media/icons/pbi-desktop.svg" alt="" height="20"> <strong>pbi-desktop</strong> &ensp; Connect to, query, and modify models in Power BI Desktop</summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -110,7 +110,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><img src="media/icons/pbip.svg" alt="" height="16"> <strong>pbip</strong></summary>
+<summary><img src="media/icons/pbip.svg" alt="" height="20"> <strong>pbip</strong> &ensp; Author and validate TMDL, PBIR, and PBIP project files</summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -125,7 +125,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><img src="media/icons/reports.svg" alt="" height="16"> <strong>reports</strong></summary>
+<summary><img src="media/icons/reports.svg" alt="" height="20"> <strong>reports</strong> &ensp; Deneb, R, Python, SVG visuals; themes; report design and review</summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -145,7 +145,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><img src="media/icons/semantic-models.svg" alt="" height="16"> <strong>semantic-models</strong></summary>
+<summary><img src="media/icons/semantic-models.svg" alt="" height="20"> <strong>semantic-models</strong> &ensp; DAX, Power Query, naming, lineage, refresh, and model auditing</summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -159,7 +159,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><img src="media/icons/fabric-cli.svg" alt="" height="16"> <strong>fabric-cli</strong></summary>
+<summary><img src="media/icons/fabric-cli.svg" alt="" height="20"> <strong>fabric-cli</strong> &ensp; Remote operations via Fabric CLI; works on Pro, PPU, or Fabric</summary>
 
 | Type | Name | Description |
 |------|------|-------------|
