@@ -86,7 +86,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 ### Available plugins for Power BI and Fabric
 
 <details>
-<summary><strong>tabular-editor</strong></summary>
+<summary><img src="media/icons/tabular-editor.svg" alt="" height="16"> <strong>tabular-editor</strong></summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -100,7 +100,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><strong>pbi-desktop</strong></summary>
+<summary><img src="media/icons/pbi-desktop.svg" alt="" height="16"> <strong>pbi-desktop</strong></summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -110,7 +110,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><strong>pbip</strong></summary>
+<summary><img src="media/icons/pbip.svg" alt="" height="16"> <strong>pbip</strong></summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -125,7 +125,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><strong>reports</strong></summary>
+<summary><img src="media/icons/reports.svg" alt="" height="16"> <strong>reports</strong></summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -145,7 +145,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><strong>semantic-models</strong></summary>
+<summary><img src="media/icons/semantic-models.svg" alt="" height="16"> <strong>semantic-models</strong></summary>
 
 | Type | Name | Description |
 |------|------|-------------|
@@ -159,7 +159,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 </details>
 
 <details>
-<summary><strong>fabric-cli</strong></summary>
+<summary><img src="media/icons/fabric-cli.svg" alt="" height="16"> <strong>fabric-cli</strong></summary>
 
 | Type | Name | Description |
 |------|------|-------------|
