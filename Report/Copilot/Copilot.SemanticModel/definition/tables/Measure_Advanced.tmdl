@@ -101,7 +101,7 @@ table Measure_Advanced
 		)
 		```
 		formatString: 0.00
-		lineageTag: 5g6v7w8xi-0xa f-1c2d-3e4f-5a6b7c8d9e0f
+		lineageTag: 5g6v7w8xi-0xaf-1c2d-3e4f-5a6b7c8d9e0f
 
 	// ============ MEDIDAS DE TENDENCIA ============
 
@@ -160,18 +160,19 @@ table Measure_Advanced
 	measure 'Model Efficiency Score' = ```
 		/*
 		Score de eficiencia del modelo: qué tan barato es por request
-		Basado en ratio del costo actual vs promedio
+		Basado en ratio del costo promedio vs costo actual
 		Escala: 0-100 (100 = más eficiente/barato)
 		*/
-		VAR AvgCostAllModels = CALCULATE (
-			[Avg Cost per Request],
-			ALL ( Billing[model] )
+		VAR AvgCostAllModels = DIVIDE (
+			CALCULATE ( [Net Amount Total], ALL ( Billing[model] ) ),
+			CALCULATE ( [Total Requests], ALL ( Billing[model] ) ),
+			0
 		)
 		VAR ThisModelCost = [Avg Cost per Request]
 		VAR Efficiency = IF (
-			AvgCostAllModels = 0,
+			ThisModelCost = 0,
 			0,
-			DIVIDE ( AvgCostAllModels, ThisModelCost ) * 100
+			DIVIDE ( AvgCostAllModels, ThisModelCost, 0 ) * 100
 		)
 		RETURN
 			MIN ( Efficiency, 100 )

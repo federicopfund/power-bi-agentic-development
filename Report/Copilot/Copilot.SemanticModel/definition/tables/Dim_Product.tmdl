@@ -27,15 +27,14 @@ table Dim_Product
 
 	column 'Product Key'
 		dataType: string
-		lineageTag: b9cadbc e-dfde-1a4c-5d6e-f7a8b9cadbc e
+		lineageTag: b9cadbc4-dfde-1a4c-5d6e-f7a8b9cadbc4
 		summarizeBy: none
-		isoLanguage: es-ES
 		
 		annotation SummarizationSetBy = Automatic
 
 	column 'Primary Key'
 		dataType: string
-		lineageTag: cadbc edf-efef-2b5d-6e7f-a8b9cadbc edf
+		lineageTag: cadbc5df-efef-2b5d-6e7f-a8b9cadbc5df
 		summarizeBy: none
 		
 		annotation SummarizationSetBy = Automatic
@@ -54,5 +53,3 @@ table Dim_Product
 			```
 
 	annotation PBI_Id = "61f2a3b4-c5d6-e7f8-a9b0-c1d2e3f4a5b6"
-
-	annotation TableRelationships = "[{'name': 'Relationship_Billing_Product', 'toTable': 'Billing', 'toColumn': 'product', 'fromColumn': 'product', 'fromTable': 'Dim_Product'}]"
