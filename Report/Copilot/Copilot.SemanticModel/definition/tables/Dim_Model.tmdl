@@ -1,0 +1,65 @@
+table Dim_Model
+	lineageTag: 72g3h4i5-j6k7-f8a9-b0c1-d2e3f4a5b6c7
+
+	column model
+		dataType: string
+		lineageTag: 83h4i5j6-k7l8-a9b0-c1d2-e3f4a5b6c7d8
+		summarizeBy: none
+		sourceColumn: model
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'Model Category'
+		dataType: string
+		lineageTag: 94i5j6k7-l8m9-b0c1-d2e3-f4a5b6c7d8e9
+		summarizeBy: none
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'Model Tier'
+		dataType: string
+		lineageTag: a5j6k7l8-m9na-c1d2-e3f4-a5b6c7d8e9fa
+		summarizeBy: none
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'Model Key'
+		dataType: string
+		lineageTag: b6k7l8m9-n0ob-d2e3-f4a5-b6c7d8e9fa0b
+		summarizeBy: none
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'Primary Key'
+		dataType: string
+		lineageTag: c7l8m9na-1p1c-e3f4-a5b6-c7d8e9fa0b1c
+		summarizeBy: none
+		
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Model = m
+		mode: import
+		source = ```
+			let
+				Source = Billing,
+				GetModels = Table.Group(Source, {"model"}, {{"Count", Table.RowCount}}),
+				RemoveCount = Table.SelectColumns(GetModels, {"model"}),
+				AddModelCategory = Table.AddColumn(RemoveCount, "Model Category", 
+					each 
+						if Text.Contains([model], "gpt-4", Comparer.OrdinalIgnoreCase) then "GPT-4"
+						else if Text.Contains([model], "gpt-3", Comparer.OrdinalIgnoreCase) then "GPT-3.5"
+						else "Other",
+					type text),
+				AddModelTier = Table.AddColumn(AddModelCategory, "Model Tier",
+					each
+						if Text.Contains([model], "4", Comparer.OrdinalIgnoreCase) then "Premium"
+						else if Text.Contains([model], "3.5", Comparer.OrdinalIgnoreCase) then "Standard"
+						else "Basic",
+					type text),
+				AddModelKey = Table.AddColumn(AddModelTier, "Model Key", each [model], type text),
+				AddPrimaryKey = Table.AddColumn(AddModelKey, "Primary Key", each [model], type text)
+			in
+				AddPrimaryKey
+			```
+
+	annotation PBI_Id = "d8m9n0oa-2p2d-f4a5-b6c7-d8e9fa0b1c2d"

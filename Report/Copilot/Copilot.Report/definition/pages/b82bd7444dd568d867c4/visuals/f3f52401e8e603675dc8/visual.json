@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
   "name": "f3f52401e8e603675dc8",
   "position": {
-    "x": 12.06440633590784,
-    "y": 16.588558711873283,
+    "x": 24,
+    "y": 24,
     "z": 8000,
-    "height": 84.450844351354888,
-    "width": 245.81227909412226,
+    "height": 50,
+    "width": 400,
     "tabOrder": 7000
   },
   "visual": {
@@ -19,7 +19,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Facturación",
+                    "value": "Facturaci\u00f3n",
                     "textStyle": {
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI Light",

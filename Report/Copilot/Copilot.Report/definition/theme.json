@@ -1,0 +1,259 @@
+{
+  "name": "Copilot Billing Dashboard Theme",
+  "dataColors": [
+    "#0078D4",
+    "#107C10",
+    "#FFB900",
+    "#D83B01",
+    "#E81828",
+    "#7030A0",
+    "#2E8B57",
+    "#FF6B35",
+    "#004B50",
+    "#FFD700",
+    "#1E90FF",
+    "#00CED1"
+  ],
+  "background": {
+    "color": "#F5F5F5"
+  },
+  "foreground": {
+    "color": "#333333"
+  },
+  "tableAccent": {
+    "color": "#0078D4"
+  },
+  "colorSchemes": [
+    {
+      "name": "Blue Green",
+      "dataColors": [
+        "#0078D4",
+        "#107C10",
+        "#005A9E",
+        "#27AE60",
+        "#1E90FF"
+      ],
+      "good": "#107C10",
+      "neutral": "#FFB900",
+      "bad": "#D83B01",
+      "maximum": "#27AE60",
+      "middle": "#FFB900",
+      "minimum": "#D83B01"
+    },
+    {
+      "name": "Professional",
+      "dataColors": [
+        "#0078D4",
+        "#606E8C",
+        "#374E7E",
+        "#5B9BD5",
+        "#44546A"
+      ],
+      "good": "#107C10",
+      "neutral": "#7030A0",
+      "bad": "#E81828",
+      "maximum": "#107C10",
+      "middle": "#FFB900",
+      "minimum": "#E81828"
+    }
+  ],
+  "visualStyles": {
+    "categoryAxis": {
+      "*": {
+        "*": {
+          "color": [
+            {
+              "property": "default",
+              "value": "#666666"
+            }
+          ],
+          "fontSize": [
+            {
+              "property": "default",
+              "value": "11pt"
+            }
+          ]
+        }
+      }
+    },
+    "valueAxis": {
+      "*": {
+        "*": {
+          "color": [
+            {
+              "property": "default",
+              "value": "#666666"
+            }
+          ],
+          "fontSize": [
+            {
+              "property": "default",
+              "value": "11pt"
+            }
+          ]
+        }
+      }
+    },
+    "title": {
+      "*": {
+        "*": {
+          "fontSize": [
+            {
+              "property": "default",
+              "value": "24pt"
+            }
+          ],
+          "fontFamily": [
+            {
+              "property": "default",
+              "value": "'Segoe UI', sans-serif"
+            }
+          ],
+          "color": [
+            {
+              "property": "default",
+              "value": "#1F497D"
+            }
+          ]
+        }
+      }
+    },
+    "legend": {
+      "*": {
+        "*": {
+          "fontSize": [
+            {
+              "property": "default",
+              "value": "12pt"
+            }
+          ],
+          "fontFamily": [
+            {
+              "property": "default",
+              "value": "'Segoe UI', sans-serif"
+            }
+          ]
+        }
+      }
+    },
+    "card": {
+      "*": {
+        "*": {
+          "outlineColor": [
+            {
+              "property": "default",
+              "value": "#E0E0E0"
+            }
+          ],
+          "outlineWeight": [
+            {
+              "property": "default",
+              "value": "1px"
+            }
+          ],
+          "background": [
+            {
+              "property": "default",
+              "value": "#FFFFFF"
+            }
+          ]
+        }
+      }
+    },
+    "tableEx": {
+      "*": {
+        "*": {
+          "outlineColor": [
+            {
+              "property": "default",
+              "value": "#D0CECE"
+            }
+          ],
+          "outlineWeight": [
+            {
+              "property": "default",
+              "value": "1px"
+            }
+          ],
+          "background": [
+            {
+              "property": "default",
+              "value": "#FFFFFF"
+            }
+          ],
+          "fontFamily": [
+            {
+              "property": "default",
+              "value": "'Segoe UI', sans-serif"
+            }
+          ],
+          "fontSize": [
+            {
+              "property": "default",
+              "value": "11pt"
+            }
+          ]
+        }
+      }
+    },
+    "slicer": {
+      "*": {
+        "*": {
+          "background": [
+            {
+              "property": "default",
+              "value": "#FFFFFF"
+            }
+          ],
+          "outlineColor": [
+            {
+              "property": "default",
+              "value": "#D0CECE"
+            }
+          ],
+          "fontFamily": [
+            {
+              "property": "default",
+              "value": "'Segoe UI', sans-serif"
+            }
+          ]
+        }
+      }
+    },
+    "lineChart": {
+      "*": {
+        "*": {
+          "lineColor": [
+            {
+              "property": "series",
+              "value": "#0078D4"
+            }
+          ]
+        }
+      }
+    },
+    "columnChart": {
+      "*": {
+        "*": {
+          "fillColor": [
+            {
+              "property": "series",
+              "value": "#0078D4"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "connection": {
+    "dataColors": [
+      "#0078D4",
+      "#107C10",
+      "#FFB900",
+      "#D83B01",
+      "#E81828"
+    ]
+  },
+  "comments": "Tema profesional para dashboard de facturación de Copilot",
+  "version": "1.0.0"
+}

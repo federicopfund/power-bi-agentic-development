@@ -1,0 +1,43 @@
+table Dim_User
+	lineageTag: a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5
+
+	column username
+		dataType: string
+		lineageTag: a2b3c4d5-e6f7-4b8c-9d0e-f1a2b3c4d5e6
+		summarizeBy: none
+		sourceColumn: username
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'User Key'
+		dataType: string
+		lineageTag: b3c4d5e6-f7a8-5c9d-0e1f-a2b3c4d5e6f7
+		summarizeBy: none
+		sourceColumn: username
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'Primary Key'
+		dataType: string
+		lineageTag: c4d5e6f7-a8b9-6d0e-1f2a-b3c4d5e6f7a8
+		summarizeBy: none
+		sourceColumn: username
+		
+		dataCategory: Uncategorized
+		
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_User = m
+		mode: import
+		source = ```
+			let
+				Source = Billing,
+				RemoveDuplicates = Table.Distinct(Source, {"username"}),
+				AddedKey = Table.AddColumn(RemoveDuplicates, "User Key", each [username], type text),
+				RenamedColumns = Table.RenameColumns(AddedKey, {{"username", "username"}}),
+				AddedPrimaryKey = Table.AddColumn(RenamedColumns, "Primary Key", each [username], type text)
+			in
+				AddedPrimaryKey
+			```
+
+	annotation PBI_Id = "50e03e58-1c41-44f7-8f6d-3e8a6f7d8e9f"

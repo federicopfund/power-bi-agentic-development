@@ -1,0 +1,58 @@
+table Dim_Product
+	lineageTag: d5e6f7a8-b9ca-6d0e-1f2a-b3c4d5e6f7a8
+
+	column product
+		dataType: string
+		lineageTag: e6f7a8b9-cadb-7e1f-2a3b-c4d5e6f7a8b9
+		summarizeBy: none
+		sourceColumn: product
+		
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: f7a8b9ca-dbec-8f2a-3b4c-d5e6f7a8b9ca
+		summarizeBy: none
+		sourceColumn: sku
+		
+		annotation SummarizationSetBy = Automatic
+
+	column model
+		dataType: string
+		lineageTag: a8b9cadb-eced-0f3b-4c5d-e6f7a8b9cadb
+		summarizeBy: none
+		sourceColumn: model
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Key'
+		dataType: string
+		lineageTag: b9cadbc e-dfde-1a4c-5d6e-f7a8b9cadbc e
+		summarizeBy: none
+		isoLanguage: es-ES
+		
+		annotation SummarizationSetBy = Automatic
+
+	column 'Primary Key'
+		dataType: string
+		lineageTag: cadbc edf-efef-2b5d-6e7f-a8b9cadbc edf
+		summarizeBy: none
+		
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Product = m
+		mode: import
+		source = ```
+			let
+				Source = Billing,
+				GroupByProduct = Table.Group(Source, {"product", "sku", "model"}, {{"Count", Table.RowCount}}),
+				RemoveCount = Table.SelectColumns(GroupByProduct, {"product", "sku", "model"}),
+				AddedProductKey = Table.AddColumn(RemoveCount, "Product Key", each [product] & " - " & [sku], type text),
+				AddedPrimaryKey = Table.AddColumn(AddedProductKey, "Primary Key", each [product], type text)
+			in
+				AddedPrimaryKey
+			```
+
+	annotation PBI_Id = "61f2a3b4-c5d6-e7f8-a9b0-c1d2e3f4a5b6"
+
+	annotation TableRelationships = "[{'name': 'Relationship_Billing_Product', 'toTable': 'Billing', 'toColumn': 'product', 'fromColumn': 'product', 'fromTable': 'Dim_Product'}]"

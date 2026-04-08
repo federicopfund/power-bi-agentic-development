@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
   "name": "91e3df48e8d5e96d8646",
   "position": {
-    "x": 24.12881267181568,
-    "y": 417.73006938080897,
+    "x": 24,
+    "y": 446,
     "z": 6000,
-    "height": 373.9965964131431,
-    "width": 621.31692629925385,
+    "height": 260,
+    "width": 613,
     "tabOrder": 5000
   },
   "visual": {
@@ -26,8 +26,8 @@
                   "Property": "Date"
                 }
               },
-              "queryRef": "Dim_Date.Date.Variación.Jerarquía de fechas.Día",
-              "nativeQueryRef": "Date Día",
+              "queryRef": "Dim_Date.Date.Variaci\u00f3n.Jerarqu\u00eda de fechas.D\u00eda",
+              "nativeQueryRef": "Date D\u00eda",
               "active": true
             }
           ]
@@ -95,7 +95,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Evolución del consumo (USD)'"
+                  "Value": "'Evoluci\u00f3n del consumo (USD)'"
                 }
               }
             },

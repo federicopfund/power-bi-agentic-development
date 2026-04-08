@@ -1,0 +1,235 @@
+table Measure_Advanced
+	lineageTag: e9n0o1pb-3q3e-a5b6-c7d8-e9fa0b1c2d3e
+
+	// ============ MEDIDAS DE COMPARACIÓN TEMPORAL ============
+
+	measure 'Prior Month Cost' = ```
+		/*
+		Costo total del mes anterior
+		Usado para cálculos de varianza y growth
+		*/
+		CALCULATE (
+			[Net Amount Total],
+			DATEADD (
+				Dim_Date[Date],
+				-1,
+				MONTH
+			)
+		)
+		```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: fa0p1q2rc-4r4f-b6c7-d8e9-fa0b1c2d3e4f
+
+	measure 'Prior Month Requests' = ```
+		/*
+		Requests del mes anterior
+		*/
+		CALCULATE (
+			[Total Requests],
+			DATEADD (
+				Dim_Date[Date],
+				-1,
+				MONTH
+			)
+		)
+		```
+		formatString: #,0
+		lineageTag: 0b1q2r3sd-5s5a-c7d8-e9fa-0b1c2d3e4f5a
+
+	measure 'Cost MoM Growth %' = ```
+		/*
+		% de crecimiento mes a mes en costo real
+		Si es negativo = ahorro, si es positivo = incremento
+		*/
+		DIVIDE (
+			[Net Amount Total] - [Prior Month Cost],
+			[Prior Month Cost],
+			BLANK ()
+		)
+		```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 1c2r3s4te-6t6b-d8e9-fa0b-1c2d3e4f5a6b
+
+	measure 'Requests MoM Growth %' = ```
+		/*
+		% de crecimiento mes a mes en consumo (requests)
+		*/
+		DIVIDE (
+			[Total Requests] - [Prior Month Requests],
+			[Prior Month Requests],
+			BLANK ()
+		)
+		```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 2d3s4t5uf-7u7c-e9fa-0b1c-2d3e4f5a6b7c
+
+	// ============ MEDIDAS DE OPTIMIZACIÓN COSTO ============
+
+	measure 'Cost per Request Ratio' = ```
+		/*
+		Ratio: Costo Actual vs Costo Teórico
+		< 1.0 = están pagando menos del standard (buen descuento)
+		> 1.0 = pagando más (revisar plan)
+		*/
+		DIVIDE (
+			[Avg Cost per Request],
+			[Theoretical Cost per Request],
+			BLANK ()
+		)
+		```
+		formatString: 0.00%
+		lineageTag: 3e4t5u6vg-8v8d-fa0b-1c2d-3e4f5a6b7c8d
+
+	measure 'Total Savings' = ```
+		/*
+		Ahorro total en términos monetarios
+		= Gross Amount - Net Amount
+		*/
+		[Gross Amount Total] - [Net Amount Total]
+		```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 4f5u6v7wh-9w9e-0b1c-2d3e-4f5a6b7c8d9e
+
+	measure 'Avg Savings per Request' = ```
+		/*
+		Ahorro promedio por cada request realizado
+		*/
+		DIVIDE (
+			[Total Savings],
+			[Total Requests],
+			0
+		)
+		```
+		formatString: 0.00
+		lineageTag: 5g6v7w8xi-0xa f-1c2d-3e4f-5a6b7c8d9e0f
+
+	// ============ MEDIDAS DE TENDENCIA ============
+
+	measure 'YTD Net Cost' = ```
+		/*
+		Costo real acumulado desde el inicio del año
+		*/
+		TOTALYTD (
+			[Net Amount Total],
+			Dim_Date[Date]
+		)
+		```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 6h7w8x9yj-1yb0-2d3e-4f5a-6b7c8d9e0f1a
+
+	measure 'YTD Requests' = ```
+		/*
+		Requests acumulados desde inicio de año
+		*/
+		TOTALYTD (
+			[Total Requests],
+			Dim_Date[Date]
+		)
+		```
+		formatString: #,0
+		lineageTag: 7i8x9ya0k-2zc1-3e4f-5a6b-7c8d9e0f1a2b
+
+	measure 'Avg Daily Cost' = ```
+		/*
+		Costo promedio diario en el período actual
+		*/
+		AVERAGEX (
+			VALUES ( Dim_Date[Date] ),
+			[Net Amount Total]
+		)
+		```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 8j9ya1b1l-3ad2-4f5a-6b7c-8d9e0f1a2b3c
+
+	// ============ MEDIDAS DE ANÁLISIS DETALLADO ============
+
+	measure 'Cost by Product Rank' = ```
+		/*
+		Ranking del producto dentro de su contexto
+		(para visualizar top N productos por costo)
+		*/
+		RANK (
+			[Net Amount Total],
+			ALL ( Billing[product] ),
+			DESC
+		)
+		```
+		formatString: 0
+		lineageTag: 9k0zb2c2m-4be3-5a6b-7c8d-9e0f1a2b3c4d
+
+	measure 'Model Efficiency Score' = ```
+		/*
+		Score de eficiencia del modelo: qué tan barato es por request
+		Basado en ratio del costo actual vs promedio
+		Escala: 0-100 (100 = más eficiente/barato)
+		*/
+		VAR AvgCostAllModels = CALCULATE (
+			[Avg Cost per Request],
+			ALL ( Billing[model] )
+		)
+		VAR ThisModelCost = [Avg Cost per Request]
+		VAR Efficiency = IF (
+			AvgCostAllModels = 0,
+			0,
+			DIVIDE ( AvgCostAllModels, ThisModelCost ) * 100
+		)
+		RETURN
+			MIN ( Efficiency, 100 )
+		```
+		formatString: 0.0
+		lineageTag: 0l1ac3d3n-5cf4-6b7c-8d9e-0f1a2b3c4d5e
+
+	measure 'Quota Headroom %' = ```
+		/*
+		% de cuota disponible aún (100% - Quota Usage %)
+		*/
+		1 - [Quota Usage %]
+		```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 1m2bd4e4o-6dg5-7c8d-9e0f-1a2b3c4d5e6f
+
+	measure 'Budget Variance' = ```
+		/*
+		Varianza presupuestaria (actual vs presupuestado)
+		Nota: Requiere tabla de presupuesto
+		Placeholder para integración futura
+		*/
+		BLANK ()
+		```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 2n3ce5f5p-7eh6-8d9e-0f1a-2b3c4d5e6f7a
+
+	// ============ MEDIDAS DE ALERTA ============
+
+	measure 'Over Quota Alert' = ```
+		/*
+		Flag: 1 si se excedió cuota, 0 si no
+		Usado en condicionales de formatos
+		*/
+		IF ( [Quota Usage %] > 1, 1, 0 )
+		```
+		formatString: 0
+		lineageTag: 3o4df6g6q-8fi7-9e0f-1a2b-3c4d5e6f7a8b
+
+	measure 'Cost Spike Flag' = ```
+		/*
+		Flag: 1 si el costo creció > 20% vs mes anterior
+		*/
+		IF ( [Cost MoM Growth %] > 0.2, 1, 0 )
+		```
+		formatString: 0
+		lineageTag: 4p5eg7h7r-9gj8-0f1a-2b3c-4d5e6f7a8b9c
+
+	partition Measure_Advanced = m
+		mode: import
+		source = ```
+			let
+				Source = #table(
+					type table [],
+					{}
+				)
+			in
+				Source
+			```
+
+	annotation PBI_Id = "5q6fh8i8s-0hk9-1a2b-3c4d-5e6f7a8b9cad"
