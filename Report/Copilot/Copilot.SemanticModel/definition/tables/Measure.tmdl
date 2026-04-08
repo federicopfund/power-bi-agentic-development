@@ -1,0 +1,332 @@
+table Measure
+	lineageTag: d566c84e-4621-46b5-98a8-1241df489500
+
+	measure 'Gross Amount Total' = ```
+			
+			/* Discount Total (ahorro por plan) */
+			SUM ( Billing[gross_amount] )
+			
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 4e0f3a29-932d-44b8-a839-3c8d5827c1a5
+
+	measure 'Net Amount Total' = ```
+			
+			/* Net Amount Total (costo real) */
+			SUM ( Billing[net_amount] )
+			
+			```
+		formatString: 0
+		lineageTag: a74d6283-1125-498e-8c9e-6a96e537cbdb
+
+	measure 'Savings %' = ```
+			
+			/* % de Ahorro por Plan */
+			DIVIDE (
+			    [Discount Amount],
+			    [Gross Amount Total],
+			    0
+			)
+			
+			```
+		lineageTag: 2c7575fa-5f67-437e-b463-5c40677ec821
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Exceeded Requests' = ```
+			
+			CALCULATE (
+			    /* Requests Excedidos*/
+			    SUM ( Billing[quantity] ),
+			    Billing[exceeds_quota] = TRUE ()
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 8c191471-c6ea-4090-8f8a-52d7c361418f
+
+	measure 'Avg Cost per Request' = ```
+			
+			/* Costo Promedio por Request (real)*/
+			DIVIDE (
+			    [Net Amount Total],
+			    [Total Requests],
+			    0
+			)
+			
+			```
+		lineageTag: fc76461a-4b74-4e85-bd52-9bdb2a611b57
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Requests' = ```
+			
+			SUM ( Billing[quantity] )
+			
+			```
+		formatString: 0
+		lineageTag: 6cf75f29-4a1d-48f6-b0a8-a9d5b33dbd9b
+
+	measure 'Theoretical Cost per Request' = ```
+			
+			/*Costo Teórico por Request*/
+			DIVIDE (
+			    [Gross Amount Total],
+			    [Total Requests],
+			    0
+			)
+			
+			```
+		lineageTag: 116ae30e-e8cb-4e75-ac0c-45eef9cdd9c3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Net Amount by Model' = ```
+			
+			[Net Amount Total]
+			
+			```
+		formatString: 0
+		lineageTag: d5ecc560-9a8f-4796-9e7c-050d12f69bc8
+
+	measure 'Quota Usage %' = ```
+			
+			DIVIDE (
+			    [Total Requests],
+			    MAX (Billing[total_monthly_quota] ),
+			    0
+			)
+			
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: bae6380a-9fa0-4374-a152-f51b9be22462
+
+	measure 'Reporting Period' = ```
+			
+			MIN ( Dim_Date[Date] ) & " - " & MAX ( Dim_Date[Date] )
+			
+			```
+		lineageTag: fe20a818-761a-4b7f-b51b-80df0e97ac02
+
+	measure 'Last Refresh Date' = ```
+			
+			NOW ()
+			
+			```
+		formatString: General Date
+		lineageTag: b132ccfd-b8ab-4e45-87a5-747f51d83c7a
+
+	measure 'Discount Amount' = ```
+			
+			/* Gross Amount Total (costo teórico) */
+			SUM ( Billing[discount_amount] )
+			
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 7babba2f-e224-4504-b1af-6fed4d8b3e30
+
+	measure 'Avg Daily Requests' = ```
+			
+			AVERAGEX (
+			    VALUES ( Dim_Date[Date] ),
+			    [Total Requests]
+			)
+			
+			```
+		formatString: #,0.00
+		lineageTag: 43214371-589b-4d7d-8acc-fb101f80f2cf
+
+	measure 'MTD Requests' = ```
+			
+			TOTALMTD (
+			    [Total Requests],
+			    Dim_Date[Date]
+			)
+			
+			```
+		formatString: #,0
+		lineageTag: b65796fe-e16a-4187-b354-4528d96a08ee
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Model Usage %' = ```
+			
+			DIVIDE (
+			    [Total Requests],
+			    CALCULATE ( [Total Requests], ALL ( Billing[model] ) ),
+			    0
+			)
+			
+			```
+		lineageTag: d5ddf2aa-4915-427e-b599-e4bb7d430dd5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Requests by User' = ```
+			
+			[Total Requests]
+			
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 3dac165d-1e9f-4813-8941-651f21f018ea
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'User Contribution %' = ```
+			
+			DIVIDE (
+			    [Total Requests],
+			    CALCULATE ( [Total Requests], ALL ( Billing[username] ) ),
+			    0
+			)
+			
+			```
+		lineageTag: 66ea2166-724d-469c-ad41-769f35d87ad6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Premium Requests' = ```
+			
+			SUM ( Billing[quantity] )
+			
+			```
+		formatString: 0
+		lineageTag: 8b89c8d5-4915-4142-9913-bf38977cdce9
+
+	measure 'Premium Gross Amount' = ```
+			
+			SUM ( Billing[gross_amount] )
+			
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 34d20b6e-aa9f-47f5-9a43-d03db6fdea37
+
+	measure 'Premium Discount Amount' = ```
+			
+			SUM ( Billing[discount_amount] )
+			
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 21ece3b0-7081-4b76-a6a9-6bd4ad7dae14
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Premium Net Amount' = ```
+			
+			SUM ( Billing[net_amount] )
+			
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: f7bfd591-63c2-4019-a13c-c92528ff8322
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Premium Cost per Request' = ```
+			
+			DIVIDE ( [Premium Gross Amount], [Premium Requests], 0 )
+			
+			```
+		formatString: \$#,0.000;(\$#,0.000);\$#,0.000
+		lineageTag: c15adf76-3bfd-4266-a0d0-496bdea9f9e3
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-US"}
+
+	measure 'Monthly Quota' = ```
+			
+			MAX ( Billing[total_monthly_quota] )
+			
+			```
+		lineageTag: 635be5b3-680a-484d-b76c-94556241fb65
+
+	measure 'Exceeded Premium Requests' = ```
+			
+			CALCULATE ( [Premium Requests], Billing[exceeds_quota] = TRUE () )
+			
+			```
+		formatString: 0
+		lineageTag: 246d8958-b601-43bd-92ac-765c19fe9230
+
+	measure 'In-Quota Premium Requests' = ```
+			
+			[Premium Requests] - [Exceeded Premium Requests]
+			
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 6ad9a3b9-5cfb-49de-a472-553847f4ccce
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure Medida
+		lineageTag: 07abe462-0eb9-4c46-8035-d41b23459fcd
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Remaining Quota' = ```
+			
+			[Monthly Quota] - [Premium Requests]
+			
+			```
+		lineageTag: e720354e-bd0a-4c56-aa02-9568c7970bc6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Daily Premium Requests' = ```
+			
+			AVERAGEX (
+			    VALUES ( Dim_Date[Date] ),
+			    [Premium Requests]
+			)
+			
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 83632f5f-133a-49b4-a9fb-27dcf5a9a04e
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Projected Month Requests' = ```
+			
+			VAR DaysInPeriod =
+			    CALCULATE ( DISTINCTCOUNT ( Dim_Date[Date] ), ALLSELECTED ( Dim_Date[Date] ) )
+			VAR CurrentBurn =
+			    [Avg Daily Premium Requests]
+			VAR DaysMonth =
+			    DAY ( EOMONTH ( MAX ( Dim_Date[Date] ), 0 ) )
+			RETURN
+			CurrentBurn * DaysMonth
+			
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: b8f0e9f6-5d18-40e5-b431-a3f87b0d3f40
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Projected Over Quota' = ```
+			
+			MAX ( 0, [Projected Month Requests] - [Monthly Quota] )
+			
+			```
+		lineageTag: 4ccd7df8-9279-46d7-9765-d2ce2fcd18c1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Columna1
+		dataType: string
+		lineageTag: d1bb58dd-a345-42d5-a8e9-12bf4f28429d
+		summarizeBy: none
+		sourceColumn: Columna1
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Measure = m
+		mode: import
+		source =
+				let
+				    Origen = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WSs4vSlWKjQUA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Columna1 = _t]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(Origen,{{"Columna1", type text}})
+				in
+				    #"Tipo cambiado"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

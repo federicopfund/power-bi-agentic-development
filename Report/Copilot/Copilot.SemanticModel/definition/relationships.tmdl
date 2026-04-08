@@ -1,0 +1,13 @@
+relationship a8a0936e-6ac8-4565-a3a1-d00880e6815d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Dim_Date.Date
+	toColumn: LocalDateTable_40c7fc10-3920-463a-903d-0697d1a8f91f.Date
+
+relationship 0d7222f0-d849-2b08-a44a-83a1e9a6de1e
+	fromColumn: Billing.date
+	toColumn: Dim_Date.Date
+
+relationship 3d4b4fb8-d0f3-a110-fcb0-634bee21cb06
+	fromColumn: Usage.date
+	toColumn: Dim_Date.Date
+

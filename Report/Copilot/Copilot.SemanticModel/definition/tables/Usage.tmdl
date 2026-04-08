@@ -1,0 +1,123 @@
+table Usage
+	lineageTag: 8778da9a-8c25-467b-a897-7fbd5b0652e3
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8d7eb6d5-9b22-44ef-841b-45b6b2cf1a61
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column product
+		dataType: string
+		lineageTag: 0e9d3d82-b049-415a-9fa1-ac018282cf53
+		summarizeBy: none
+		sourceColumn: product
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 9318804d-4739-4b95-b3d6-836732b54be5
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: decimal
+		formatString: 0
+		lineageTag: 701eb788-ea49-4421-981b-64cca81cd701
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_type
+		dataType: string
+		lineageTag: 4dcc7e9a-bcfa-49ec-abf0-0cd2c2d98674
+		summarizeBy: none
+		sourceColumn: unit_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column applied_cost_per_quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 289327e5-5bfe-4e33-bfab-8b30bb4d62b2
+		summarizeBy: sum
+		sourceColumn: applied_cost_per_quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column gross_amount
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 72a34cae-dde0-46a2-86eb-dfdebe1edb2f
+		summarizeBy: sum
+		sourceColumn: gross_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column discount_amount
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: d689f0f8-2590-40ff-85ef-99f17bcea2b6
+		summarizeBy: sum
+		sourceColumn: discount_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column net_amount
+		dataType: int64
+		formatString: 0
+		lineageTag: 33df798d-b5f3-4fdf-87c0-9536ec6acef5
+		summarizeBy: sum
+		sourceColumn: net_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column organization
+		dataType: string
+		lineageTag: c527fa6c-fdc0-4e22-83c1-ade8c677dc81
+		summarizeBy: none
+		sourceColumn: organization
+
+		annotation SummarizationSetBy = Automatic
+
+	column repository
+		dataType: string
+		lineageTag: 882c17f2-ab1c-4f09-bd25-e6f491703cfe
+		summarizeBy: none
+		sourceColumn: repository
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_center_name
+		dataType: string
+		lineageTag: ed11bc65-65cc-4cab-ad1b-6abc685602cc
+		summarizeBy: none
+		sourceColumn: cost_center_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Usage = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents("C:\Users\federico.pfund\OneDrive - Softtek\Documents\Copilot\Code Pair Copilot\summarizedUsageReport_1_ebcda64b024c4c89aa735b0550bdfb87.csv"),[Delimiter=",", Columns=12, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"date", type date}, {"product", type text}, {"sku", type text}, {"unit_type", type text}, {"applied_cost_per_quantity", Int64.Type},{"net_amount", Int64.Type}, {"organization", type text}, {"repository", type text}, {"cost_center_name", type text}}),
+				    #"Valor reemplazado" = Table.ReplaceValue(#"Tipo cambiado",".",",",Replacer.ReplaceText,{"quantity", "gross_amount", "discount_amount"}),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Valor reemplazado",{{"discount_amount", Currency.Type}, {"gross_amount", Currency.Type}, {"quantity", Currency.Type}})
+				in
+				    #"Tipo cambiado1"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

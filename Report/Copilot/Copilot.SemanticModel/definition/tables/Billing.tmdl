@@ -1,0 +1,155 @@
+table Billing
+	lineageTag: 9ccda2c7-279f-4a8b-8826-f975d0e6e56e
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: cffe084b-4fe2-4f5a-9d8d-c5b67dd0b975
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column username
+		dataType: string
+		lineageTag: 24035c62-6558-4abf-88c5-d8218dea6023
+		summarizeBy: none
+		sourceColumn: username
+
+		annotation SummarizationSetBy = Automatic
+
+	column product
+		dataType: string
+		lineageTag: a739417b-c8a1-4e94-bd3c-a793b9a6bfb8
+		summarizeBy: none
+		sourceColumn: product
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: da85d748-12e8-40c3-a45b-c15008927895
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column model
+		dataType: string
+		lineageTag: ca0afce6-9ea0-475c-9bb6-551ed374c5e1
+		summarizeBy: none
+		sourceColumn: model
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 0725c1e9-d5b3-42f3-9155-584eaad7f892
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column unit_type
+		dataType: string
+		lineageTag: 01f4dba4-1c60-4413-8ebd-87c7e58c3a0a
+		summarizeBy: none
+		sourceColumn: unit_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column applied_cost_per_quantity
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 158d59ba-7bb9-4805-b982-8948ce91c325
+		summarizeBy: sum
+		sourceColumn: applied_cost_per_quantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column gross_amount
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: b8acde97-6fbc-49d7-8943-80bb783e8359
+		summarizeBy: sum
+		sourceColumn: gross_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column discount_amount
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 37d54f02-0860-4afc-8471-28983c008da9
+		summarizeBy: sum
+		sourceColumn: discount_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column net_amount
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 6f5e7ad3-2df4-4107-88b7-c60664427dee
+		summarizeBy: sum
+		sourceColumn: net_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column exceeds_quota
+		dataType: string
+		lineageTag: 8983ed21-aad4-47f7-80dd-21cf8db8eaa1
+		summarizeBy: none
+		sourceColumn: exceeds_quota
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_monthly_quota
+		dataType: string
+		lineageTag: a32caf03-b41a-45c3-9b2d-bb3e60ce8c49
+		summarizeBy: none
+		sourceColumn: total_monthly_quota
+
+		annotation SummarizationSetBy = Automatic
+
+	column organization
+		dataType: string
+		lineageTag: 31c75c96-bbeb-4671-9034-199c3db4d693
+		summarizeBy: none
+		sourceColumn: organization
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_center_name
+		dataType: string
+		lineageTag: 0190a1b0-d7e9-4d47-8b72-ae4bdebce3a8
+		summarizeBy: none
+		sourceColumn: cost_center_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Billing = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents("C:\Users\federico.pfund\OneDrive - Softtek\Documents\Copilot\Code Pair Copilot\premiumRequestUsageReport_1_5491d51381c84bc584d6904a36771b47.csv"),[Delimiter=",", Columns=15, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true]),
+				    #"Valor reemplazado" = Table.ReplaceValue(#"Encabezados promovidos",".",",",Replacer.ReplaceText,{"gross_amount"}),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Valor reemplazado",{{"gross_amount", Currency.Type}}),
+				    #"Valor reemplazado1" = Table.ReplaceValue(#"Tipo cambiado",".",",",Replacer.ReplaceText,{"discount_amount"}),
+				    #"Valor reemplazado2" = Table.ReplaceValue(#"Valor reemplazado1",".",",",Replacer.ReplaceText,{"applied_cost_per_quantity"}),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Valor reemplazado2",{{"applied_cost_per_quantity", Currency.Type}, {"discount_amount", Currency.Type}, {"quantity", Currency.Type}, {"date", type date}, {"net_amount", Currency.Type}})
+				in
+				    #"Tipo cambiado1"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+
