@@ -918,6 +918,8 @@ Not worth implementing via TOM. KPI objects (`Measure.KPI`) attach goal/status/t
 
 Direct Lake is a Power BI / Fabric storage mode where the model reads directly from OneLake Delta tables without import. Direct Lake partitions use `EntityPartitionSource` instead of `MPartitionSource`.
 
+> **Note:** The TOM examples below apply when connected via the XMLA endpoint (e.g. Tabular Editor CLI or MCP server), not via PBI Desktop's local proxy. PBI Desktop's local Analysis Services instance does not expose Direct Lake databases to external connections; use the Tabular Editor CLI or a Power BI MCP server to work with Direct Lake models.
+
 ### Read Direct Lake partition details
 
 ```powershell

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="media/bg42-11-3.png" alt="" width="800">
+</p>
+
 <h1 align="center">power-bi-agentic-development</h1>
 
 <p align="center">
@@ -6,29 +10,37 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.19.0-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.26.1-blue" alt="Version">
   <img src="https://img.shields.io/badge/Power_BI-F2C811?logo=powerbi&logoColor=000" alt="Power BI">
   <img src="https://img.shields.io/badge/Microsoft_Fabric-008272" alt="Microsoft Fabric">
   <img src="https://img.shields.io/badge/Tabular_Editor-2E7D32" alt="Tabular Editor">
   <img src="https://img.shields.io/badge/license-GPL--3.0-green" alt="License">
 </p>
 
-> [!NOTE]
-> These skills are under active development with a daily release cadence and regular renaming or restructuring.
+> [!WARNING]
+> Under active development with a weekly release cadence; regular renaming or restructuring.
 
 ---
 
-<p align="center">
-  <img src="media/bg42-11-3.png" alt="" width="800">
-</p>
+### What is agentic development?
+
+- *Agentic development* is when you use agents to help you build, manage, and optimize artifacts and software. This includes semantic models, reports, and the things around them, like workspaces, deployment pipelines, and also processes.
+- A *marketplace* hosts *plugins* that you can install. Plugins are a collection of resources that help coding agents perform better. They are typically special instruction files and scripts. Plugins can contain skills, subagents, hooks, and MCP servers focused on special topics or tasks.
+- This marketplace is focused on everything to help your agent work well with Power BI and Fabric! Read further for more information.
 
 ## Installation
 
-These skills are intended for use in Claude Code, Desktop, or Cowork. However, you can use them in other tools like GitHub Copilot, Codex, Gemini CLI.
+Here's how you get started in Claude Code; run this in the terminal to get the marketplace: 
 
 ```bash
 claude plugin marketplace add data-goblin/power-bi-agentic-development
 ```
+
+### Example: Using the pbir-cli with the skills
+
+[Click here for a YouTube walkthrough](https://www.youtube.com/watch?v=acHDorTi62U)
+
+[![pbir-cli demo](https://img.youtube.com/vi/acHDorTi62U/maxresdefault.jpg)](https://www.youtube.com/watch?v=acHDorTi62U)
 
 <details>
 <summary><strong>Claude Code</strong></summary>
@@ -81,7 +93,9 @@ The repo contains skills, agents, and hooks.
 - **Agents** are autonomous subprocesses that handle complex, multi-step tasks independently; typically used for review and validation.
 - **Hooks** run automatically after tool use to validate files and catch errors early. They are deterministic; they fire when a specific pattern is matched, not by LLM judgment.
 
-Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Set any check to `false` to disable it; for example, set `fab_exists: false` if you don't have the Fabric CLI installed.
+Hook checks can be individually toggled via config files. Set any check to `false` to disable it:
+- `plugins/pbip/hooks/config.yaml` -- PBIR, TMDL, and report binding validation
+- `plugins/pbi-desktop/hooks/config.yaml` -- DAX references, measure metadata, referential integrity, metadata cache
 
 ### Available plugins for Power BI and Fabric
 
@@ -106,6 +120,11 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 |------|------|-------------|
 | Skill | [`connect-pbid`](plugins/pbi-desktop/skills/connect-pbid/) | Explore, query, and modify a model in Power BI Desktop |
 | Agent | [`query-listener`](plugins/pbi-desktop/agents/query-listener.md) | Capture DAX queries from Power BI Desktop visuals in real time |
+| Hook | DAX reference validation | Validates table, column, and measure references against the connected model; suggests corrections |
+| Hook | Measure metadata enforcement | Blocks adding measures without DisplayFolder, Description, and FormatString |
+| Hook | Referential integrity check | Reports unmatched many-side keys after relationship or column changes |
+| Hook | Metadata cache refresh | Auto-snapshots model metadata on TOM connect or model modification |
+| Hook | Compatibility level check | Reports features available by upgrading; optional auto-upgrade |
 
 </details>
 
@@ -154,6 +173,7 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 | Skill | [`refreshing-semantic-model`](plugins/semantic-models/skills/refreshing-semantic-model/) | Trigger or troubleshoot refreshes |
 | Skill | [`lineage-analysis`](plugins/semantic-models/skills/lineage-analysis/) | Trace downstream reports from a semantic model across workspaces |
 | Skill | [`power-query`](plugins/semantic-models/skills/power-query/) | Write M expressions, debug query folding, execute M locally or via Fabric API |
+| Skill | [`dax`](plugins/semantic-models/skills/dax/) | Write, debug, and optimize DAX in semantic models. Contributed by [Justin Martin](https://daxnoob.blog) |
 | Agent | [`semantic-model-auditor`](plugins/semantic-models/agents/semantic-model-auditor.md) | Audit semantic models for quality, memory, DAX, and design issues |
 
 </details>
@@ -169,6 +189,15 @@ Hook checks can be individually toggled via `plugins/pbip/hooks/config.yaml`. Se
 
 </details>
 
+<details>
+<summary><img src="media/icons/fabric-cli.svg" alt="" height="20"> <strong>fabric-admin</strong> &ensp; Tenant settings audits, governance, delegated overrides; requires fabric-cli</summary>
+
+| Type | Name | Description |
+|------|------|-------------|
+| Skill | [`audit-tenant-settings`](plugins/fabric-admin/skills/audit-tenant-settings/) | Audit Fabric and Power BI tenant settings, delegated overrides, and Entra security group membership |
+
+</details>
+
 
 ## Useful stuff
 
@@ -176,7 +205,7 @@ General-purpose agent resources that don't fit into a plugin: defensive hooks, p
 
 ## Use or re-use of these skills
 
-These skills are intended for free community use.
+These plugins are intended for free community use.
 
 You do not have the license to copy and incorporate them into your own products, trainings, courses, or tools. If you copy these skills - manually or by using an agent to rewrite them - you must include attribution and a link to this original project. That includes you, Microsoft.
 

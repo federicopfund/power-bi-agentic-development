@@ -70,6 +70,77 @@ Agents frequently hallucinate these from SQL, Python, Excel VBA, or M training d
 | `null` | `BLANK()` (DAX has no null literal) |
 
 
+## Common Correctness Traps
+
+Patterns that execute without error but produce wrong results. These account for the majority of DAX debugging questions on community forums.
+
+| Trap | What happens | Fix |
+|---|---|---|
+| `CALCULATE(expr, ALL('Table'))` | Removes ALL filters including SUMMARIZECOLUMNS grouping; every row shows the same value | Use `ALL('Table'[Column])` or `REMOVEFILTERS('Table'[Column])` to target specific columns |
+| `CALCULATE(expr, 'T'[Col] = "X")` | **Replaces** existing filter on that column (doesn't AND) | Use `KEEPFILTERS('T'[Col] = "X")` to intersect with existing filters |
+| `VAR _x = SUM(...) RETURN CALCULATE(_x, filter)` | VAR is evaluated once at definition; CALCULATE cannot re-evaluate it | Move the aggregation inside CALCULATE: `CALCULATE(SUM(...), filter)` |
+| `SUM(A) / SUM(B)` in grand total | Divides global sums, not sum of row-level ratios; total appears "wrong" | This is mathematically correct (weighted average); if sum-of-ratios is needed, use `SUMX(VALUES(Dim[Key]), [Ratio])` |
+| `DATEADD(scalar_date, -1, MONTH)` | DATEADD requires a date **table**, not a scalar value | Use `DATEADD('Date'[Date], -1, MONTH)` with a date column reference |
+| `CALCULATE(expr, FILTER('Sales', condition))` | Filters the **expanded table** (includes related tables via relationships), not just Sales. Causes both incorrect results (intersection with related tables) and severe performance degradation (117x slower in SQLBI benchmarks) | Use column predicates: `CALCULATE(expr, 'Sales'[Col] = "X")`. For complex conditions use `KEEPFILTERS(condition)`. Only use FILTER on a table when the condition spans multiple columns that can't be expressed as separate filter arguments |
+| `ALLSELECTED()` with no arguments | Removes all grouping filters from SUMMARIZECOLUMNS; not just slicer filters | Always specify the table or column: `ALLSELECTED('Date')` |
+| Deeply nested IF / repeated measure in IF branches | Each IF branch may be evaluated independently; referencing the same measure in both branches causes double evaluation | Store the measure in a VAR before the IF; use SWITCH(TRUE(), ...) for multi-condition logic. Place VARs **inside** conditional branches if they're only used there (preserves short-circuit optimization) |
+| Implicit measures (auto-sum) | Numeric columns auto-aggregate in visuals; bypasses explicit measure logic | Disable via model property or set `SummarizeBy = None` on columns that shouldn't auto-aggregate |
+
+
+## CALCULATE Modifiers Reference
+
+Functions used as filter arguments inside CALCULATE / CALCULATETABLE. They modify the filter context rather than returning values. Misusing them produces the most common visual symptoms reported on community forums.
+
+### Filter Removal
+
+| Modifier | What it removes | Visual symptom if misused |
+|---|---|---|
+| `ALL('Table')` | All filters on the table, **including** the visual's grouping columns | Every row in the matrix/table shows the **same value** (the ungrouped total). The #1 reported DAX bug on community forums |
+| `ALL('Table'[Col])` | Filters on that one column only; preserves grouping and other column filters | Correct per-row values but **grand total ignores one dimension** (e.g. region total that ignores region) |
+| `ALL('T'[C1], 'T'[C2])` | Filters on specific columns only | Same as above but for multiple columns |
+| `ALLEXCEPT('Table', 'T'[KeepCol])` | All filters except the named columns | Rows look correct but subtotals may differ from expected; confusing when the "kept" column isn't the one in the visual |
+| `ALLSELECTED('Table')` | Grouping filters from SUMMARIZECOLUMNS; preserves slicer/page filters | If table is omitted (`ALLSELECTED()` with no args): same-value-every-row because ALL grouping is removed, not just the intended dimension |
+| `REMOVEFILTERS('Table')` | Same as `ALL('Table')` | Same same-value symptom. Prefer REMOVEFILTERS over ALL for clarity; signals intent to remove filters rather than to materialize all rows |
+| `REMOVEFILTERS('T'[Col])` | Same as `ALL('T'[Col])` | Same column-level removal |
+
+**Common mistake:** Using `ALL('Sales')` as a denominator for % of total when the visual groups by `'Sales'[Region]`. The ALL removes the Region grouping, so the denominator is correct (grand total) but if accidentally applied to the numerator too, every row shows the grand total. Fix: use `ALL('Sales'[Region])` or `ALLSELECTED('Sales'[Region])`.
+
+### Filter Intersection
+
+| Modifier | What it does | Visual symptom if missing |
+|---|---|---|
+| `KEEPFILTERS('T'[Col] = "X")` | Intersects the new filter with existing filters on that column | Without KEEPFILTERS: the filter **replaces** existing filters. If the visual already filters to Region = "East" and the measure does `CALCULATE(expr, 'T'[Region] = "West")`, it overrides "East" with "West" instead of returning BLANK (no intersection). The user sees "West" values appearing in "East" rows |
+| `KEEPFILTERS(table_expr)` | Same intersection behavior for table expressions | Same override problem with table-level filters |
+
+**Common mistake:** Building a "Red Sales" measure as `CALCULATE([Sales], 'Product'[Color] = "Red")`. When the visual has a slicer on Color = "Blue", the measure **still shows Red** because the filter replaces the slicer. With `KEEPFILTERS('Product'[Color] = "Red")`, it correctly returns BLANK when Blue is selected (intersection of Red and Blue is empty).
+
+### Relationship Modifiers
+
+| Modifier | What it does | Visual symptom if wrong |
+|---|---|---|
+| `USERELATIONSHIP('Fact'[ShipDate], 'Date'[Date])` | Activates an inactive relationship for this calculation | Without it: measure uses the active relationship (e.g. order date) when the user expects ship date. Values look plausible but are offset by the order-to-ship lag |
+| `CROSSFILTER('T1'[Col], 'T2'[Col], Both)` | Changes cross-filter direction to bidirectional for this calculation | Without it: dimension slicer doesn't filter the fact table (appears to "do nothing"). Common with bridge tables in many-to-many patterns |
+
+**USERELATIONSHIP limitation:** Cannot be used when the target table has Row-level security (RLS). Use TREATAS as a workaround.
+
+### Virtual Relationships
+
+| Function | What it does | When to use |
+|---|---|---|
+| `TREATAS(table_expr, 'T'[Col])` | Applies values from a table expression as a filter on the target column, as if a relationship existed | When tables are unrelated or USERELATIONSHIP is blocked by RLS. Also useful for disconnected slicer tables (parameter tables that drive measure behavior without a physical relationship) |
+
+**Common symptom without TREATAS:** A slicer on a disconnected table "doesn't filter anything." TREATAS bridges the gap by projecting the slicer's values onto the target column.
+
+### Key Rules
+
+- Filter arguments in CALCULATE are evaluated in the **original** context before being applied
+- Multiple filter arguments AND together (each narrows independently)
+- `ALL` / `REMOVEFILTERS` execute before explicit filter arguments in CALCULATE's evaluation order
+- Without KEEPFILTERS, a filter argument on column X **replaces** any existing filter on column X
+- USERELATIONSHIP and CROSSFILTER override model-level relationship settings for the calculation only
+- Innermost CALCULATE wins when nested expressions contain conflicting modifiers
+
+
 ## BLANK vs NULL
 
 DAX has no concept of NULL. The equivalent is BLANK, which behaves differently from SQL NULL:

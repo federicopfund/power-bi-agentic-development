@@ -1,7 +1,7 @@
 ---
 name: connect-pbid
-version: 0.19.0
-description: TOM and ADOMD.NET guidance via PowerShell for connecting to Power BI Desktop's local Analysis Services instance. Covers model enumeration, DAX queries, metadata modification, annotations, calendar definitions, field parameters, and query tracing. Automatically invoke when the user mentions "Power BI Desktop", "Analysis Services port", "TOM", "ADOMD", or asks to "connect to PBI Desktop", "query PBI Desktop with DAX", "modify PBI Desktop model", "add a measure to PBI", "capture visual queries", "create a field parameter", "validate DAX", "intercept DAX queries".
+version: 0.26.1
+description: TOM and ADOMD.NET guidance via PowerShell for connecting to Power BI Desktop's local Analysis Services instance. Covers model enumeration, DAX queries, metadata modification, annotations, calendar definitions, field parameters, query tracing, and DAX library package management (daxlib.org). Automatically invoke when the user mentions "Power BI Desktop", "Analysis Services port", "TOM", "ADOMD", "daxlib", "DAX library", "DAX UDF package", or asks to "connect to PBI Desktop", "query PBI Desktop with DAX", "modify PBI Desktop model", "add a measure to PBI", "capture visual queries", "create a field parameter", "validate DAX", "intercept DAX queries", "install daxlib", "add DAX SVG", "add IBCS".
 ---
 
 # Connect to Power BI Desktop (Local Analysis Services)
@@ -17,30 +17,22 @@ Expert guidance for connecting to Power BI Desktop's local tabular model via the
 
 Activate only when the Tabular Editor CLI or a Power BI MCP server is unavailable. TOM is more reliable than direct TMDL editing because it validates changes against the engine and applies them atomically.
 
-**WARNING:** This skill does NOT support remote models via the XMLA endpoint.
+**WARNING:** This skill does NOT support remote models via the XMLA endpoint. For Direct Lake models or models hosted in Fabric, use the Tabular Editor CLI or a Power BI MCP server instead; the local Analysis Services proxy does not expose Direct Lake databases to external TOM/ADOMD.NET connections.
 
 
 ## Critical
 
-- Power BI Desktop must be open with a model loaded before connecting; if there are errors it is likely due to a "thin report" connected to a remote model
+- Power BI Desktop must be open with a model loaded before connecting; if there are errors it is likely due to a "thin report" connected to a remote model, or a Direct Lake model (which uses a remote proxy that blocks external connections)
 - The local Analysis Services instance only accepts connections from `localhost`
 - Multiple PBI Desktop files open means multiple `msmdsrv.exe` processes on different ports. Connect to each port, read `$server.Databases[0].Name`, and ask the user which model to work with if more than one is found
 - Always use a timeout of 60000ms or higher for PowerShell commands via Bash
-- **Shell escaping**: When calling PowerShell from Bash (e.g., on macOS or WSL), use **single quotes** for the outer `-Command` argument so Bash does not interpret `$env:TEMP`, `$server`, etc. as shell variables. Double quotes cause `$` variables to be eaten by Bash before PowerShell sees them:
-  ```bash
-  # Wrong -- Bash eats $env:TEMP, PowerShell gets empty string
-  powershell -Command "$pkgDir = $env:TEMP\tom_nuget"
-
-  # Correct -- single quotes pass $env:TEMP literally to PowerShell
-  powershell -Command '$pkgDir = "$env:TEMP\tom_nuget"'
-  ```
-  For complex scripts, write to a `.ps1` file and execute with `-File` instead of `-Command` to avoid escaping issues entirely.
-- **Prefer inline PowerShell** over writing `.ps1` files. Only create script files for repeated operations. For one-off queries or modifications, use `powershell -ExecutionPolicy Bypass -Command '...'` directly.
+- **Shell escaping**: Bash eats PowerShell `$` variables (`$env:TEMP`, `$server`, etc.) silently. Two options: (1) single-quote the `-Command` arg so Bash passes `$` literally to PowerShell; (2) write a `.ps1` file with a heredoc (single-quoted delimiter preserves `$`) and use `-File`. On macOS via Parallels, the `prlctl` -> `cmd.exe` -> `powershell.exe` chain adds extra escaping layers; `.ps1` files are more reliable for complex scripts but inline `-Command` with single quotes works for short commands.
 - **Always use `-ExecutionPolicy Bypass`** when running PowerShell commands or scripts. Windows blocks unsigned scripts by default.
 - **Script file location** -- persistent scripts should go in the agent harness's scripts directory for the project (`.claude/scripts/`, `.github/scripts/`, `.cursor/scripts/`, `.gemini/scripts/`, etc. depending on the harness). Ephemeral or throwaway scripts should go in a project `tmp/` directory (which should be `.gitignored`). Do not write scripts to `./` root or `/tmp/`.
 - Do not modify model metadata without explicit user direction
 - Always call `$model.SaveChanges()` to persist modifications; without it, changes are discarded
 - For macOS users running PBI Desktop in Parallels, see [parallels-macos.md](./references/parallels-macos.md)
+- **Validation hooks** are active for this plugin; they validate DAX references, enforce measure metadata, check referential integrity, and report compatibility level upgrade opportunities. Toggle checks in `hooks/config.yaml`.
 
 
 ## 1. Prerequisites
@@ -66,6 +58,8 @@ if (-not (Test-Path "$pkgDir\Microsoft.AnalysisServices.AdomdClient.retail.amd64
 ```
 
 Packages install DLLs under `lib\net45\`. Load with `Add-Type -Path`.
+
+> **If a TOM operation fails** with a compatibility level error or missing type, the `.retail.amd64` package may be too old. A newer package (`Microsoft.AnalysisServices`, .NET 8+) ships with more recent TOM features. See [daxlib.md](./references/daxlib.md) for details on package differences.
 
 
 ## 2. Quickstart
@@ -520,6 +514,63 @@ This is different from TOM modifications via `$model.SaveChanges()`, which apply
 To retrieve current TOM/ADOMD.NET reference docs, use `microsoft_docs_search` + `microsoft_docs_fetch` (MCP) if available, otherwise `mslearn search` + `mslearn fetch` (CLI). Search based on the user's request and run multiple searches as needed to ensure sufficient context before proceeding.
 
 
+## 11. Debugging DAX with EVALUATEANDLOG
+
+`EVALUATEANDLOG(<Value>, [Label], [MaxRows])` wraps any DAX expression, returns it unchanged, and emits intermediate results as JSON via a trace event. Works in PBI Desktop only.
+
+**Programmatic capture** via the TOM Trace API eliminates the need for external tools (DAX Debug Output, SQL Server Profiler, DAX Studio). Subscribe to the `DAXEvaluationLog` trace event (enum ID 135), capture events with a synchronized `ArrayList` via `Register-ObjectEvent`, and parse the JSON from `$Event.SourceEventArgs.TextData`.
+
+**Critical implementation detail:** `Register-ObjectEvent -Action` runs in a separate PowerShell runspace. `$global:` variables inside the action block do not share scope. Pass a synchronized collection via `-MessageData`:
+
+```powershell
+$evalEvents = [System.Collections.ArrayList]::Synchronized((New-Object System.Collections.ArrayList))
+$job = Register-ObjectEvent -InputObject $trace -EventName "OnEvent" -MessageData $evalEvents -Action {
+    $Event.MessageData.Add($Event.SourceEventArgs) | Out-Null
+}
+```
+
+**Always clear the VertiPaq cache** before debug queries; cached results prevent EVALUATEANDLOG from firing:
+
+```powershell
+$server.Execute('{ "clearCache": { "object": { "database": "' + $db.Name + '" } } }') | Out-Null
+```
+
+**Common debugging patterns:**
+
+| Pattern | Approach |
+|---------|----------|
+| Measure chain decomposition | Wrap each intermediate step: `EVALUATEANDLOG([Step1], "Label1")` |
+| Filter context inspection | Trace CALCULATE with vs without ALL/REMOVEFILTERS |
+| BLANK vs zero detection | Trace the value before a comparison; BLANK = 0 is TRUE in DAX |
+| Variable context trap | Trace VAR value alongside CALCULATE result; proves VAR is not re-evaluated |
+| Grand total diagnosis | Trace numerator + denominator at row vs total grain |
+| Table expression inspection | Wrap CALCULATETABLE result; trace shows actual rows feeding an aggregate |
+
+For full setup, JSON payload structure, event batching behavior, and all debugging patterns, see [evaluateandlog-debugging.md](./references/evaluateandlog-debugging.md).
+
+
+## 12. Performance Profiling
+
+Programmatic equivalent of DAX Studio's Server Timings. Subscribe to `QueryEnd`, `VertiPaqSEQueryEnd`, and `VertiPaqSEQueryCacheMatch` trace events to measure Formula Engine (FE) vs Storage Engine (SE) time per query.
+
+**Key formula:** FE time = Total duration - sum(SE scan durations)
+
+**Important:** `VertiPaqSEQueryCacheMatch` does NOT support `Duration` or `CpuTime` columns; adding them causes `$trace.Update()` to throw. Only add `TextData` + `EventClass` for cache match events.
+
+**Workflow:**
+1. Create trace with performance events (see reference for column compatibility)
+2. Clear cache (TMSL `clearCache`) for cold timings
+3. Execute DAX via ADOMD.NET
+4. Parse trace events: `QueryEnd` for total, `VertiPaqSEQueryEnd` for per-scan SE durations
+5. Compare cold vs warm cache to measure cache benefit
+
+**Statistical sampling:** Single measurements are noisy. Always take 6-12 samples and compare medians (not means) before and after a change. If ranges overlap significantly, the difference is likely noise. Discard the first cold-cache run as warm-up. See the reference for a `Measure-QueryMedian` helper.
+
+**Visual query profiling:** Construct SUMMARIZECOLUMNS queries from PBIR `visual.json` definitions. Column projections become group-by columns; measure projections become measure references; `Aggregation.Function` maps to SUM (0), MIN (1), MAX (2), COUNT (3), AVERAGE (4).
+
+For full setup, timing interpretation, sampling patterns, and PBIR-to-DAX translation, see [performance-profiling.md](./references/performance-profiling.md).
+
+
 ## References
 
 **Skill references:**
@@ -529,11 +580,18 @@ To retrieve current TOM/ADOMD.NET reference docs, use `microsoft_docs_search` + 
 - [Calendar Column Groups](./references/calendar-column-groups.md) - Gregorian, fiscal, and ISO week-based calendar definitions via TOM; time units, primary/associated columns
 - [DAX Expression Locations](./references/dax-expressions.md) - Where DAX appears in a model: measures, calculated columns/tables, calc items, format strings, detail rows, RLS, UDFs
 - [DAX Pitfalls](./references/dax-pitfalls.md) - Deprecated/not-recommended functions, non-existent functions agents hallucinate from SQL/Python/M, common syntax mistakes, BLANK vs NULL
+- [EVALUATEANDLOG Debugging](./references/evaluateandlog-debugging.md) - Programmatic DAX debugging via TOM Trace API; capture intermediate results, cache clearing, six debugging patterns for common DAX issues
+- [Performance Profiling](./references/performance-profiling.md) - DAX Server Timings via Trace API; FE/SE time split, cold/warm cache comparison, PBIR visual-to-DAX translation, trace event column compatibility
 - [Query Listener](./references/query-listener.md) - Capture live visual DAX queries via DMV polling; interpret query structure, timings, filter patterns
 - [Export Model](./references/export-model.md) - Export to BIM/TMDL via Tabular Editor CLI, fab CLI, or TOM serializer
 - [VertiPaq Statistics](./references/vertipaq-stats.md) - Column cardinality, dictionary/data size, memory by table, server timings via DMVs
 - [Refresh Model](./references/refresh-model.md) - All refresh methods (TMSL, TOM RequestRefresh, ADOMD.NET)
 - [macOS + Parallels Guide](./references/parallels-macos.md) - Connecting from macOS when PBI Desktop runs in a Parallels VM
+- [DAX Library Packages](./references/daxlib.md) - Installing reusable DAX UDF packages from daxlib.org; DaxLib.SVG, PowerofBI.IBCS, package structure, annotations
+
+**CLI tools in `bin/`:**
+
+- **`daxlib`** -- CLI for browsing, downloading, and installing DAX library packages from daxlib.org. Script at `daxlib.sh` (requires bash + jq). Model operations (add/update/remove) call `scripts/daxlib-tom/` via `dotnet run` (requires .NET 8 SDK). On macOS, model operations route through Parallels automatically. See [daxlib.md](./references/daxlib.md) for full command reference.
 
 **Agents:**
 
@@ -547,6 +605,7 @@ To retrieve current TOM/ADOMD.NET reference docs, use `microsoft_docs_search` + 
 - `refresh-table.ps1` - Refresh a table or entire model via TMSL with configurable refresh type
 - `modify-tom-objects.ps1` - Create table, rename measures, set folders/formats, hide columns, create relationship (with undo)
 - `create-field-parameter.ps1` - Create a field parameter table from a list of measures with all required metadata
+- `debug-dax.ps1` - Debug DAX with EVALUATEANDLOG trace capture and performance timings; auto-detects port, enumerates model measures, provides `Invoke-DebugQuery` helper
 - `connect-from-mac.sh` - macOS wrapper that runs PowerShell scripts in a Parallels VM via `prlctl exec`
 
 **External references:**

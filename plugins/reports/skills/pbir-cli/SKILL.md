@@ -1,55 +1,82 @@
 ---
 name: pbir-cli
-description: Advanced Power BI report manipulation and execution using pbir CLI and object model; executable scripts for complex workflows, domain-specific references, and reusable templates. Automatically invoke when the user works with .pbir/.pbip report files, or asks to create/modify visuals, pages, themes, DAX measures, conditional formatting, report validation, bulk operations, or Fabric workspace integration for reports.
+version: 0.26.0
+description: Advanced Power BI report manipulation and execution using pbir CLI and object model; executable scripts for complex workflows, domain-specific references, and reusable templates. Automatically invoke when the user works with .pbir/.pbip report files, or asks to "add a visual", "format a chart", "bind fields", "set a theme", "add conditional formatting", "create a page", "add a thin-report measure", "validate a report", "audit report formatting", "bulk format visuals", "publish to Fabric", "explore a report", or mentions pbir, pbir-cli, report visuals, visual formatting, field bindings, report extensions, or Fabric workspace integration for reports.
 ---
 
-# pbir CLI for Power BI Report Management
+# Working with Power BI reports using `pbir`
 
-Agent-first CLI for comprehensive Power BI report operations. All commands use `pbir`.
+CLI for exploring, building, managing, formatting Power BI reports. All commands use `pbir`.
 
-## Path Syntax
+**IMPORTANT:** ALWAYS use `pbir` CLI commands to read and modify reports if `pbir` is available. ONLY Read, Write, or Update JSON files directly as a fallback if `pbir` fails three times in a row, and you MUST invoke the `pbir-format` skill from the `pbip` plugin when working with these files.
+
+**IMPORTANT:** FIRST Read and adhere to the mental model in [MENTAL-MODEL.md](important/MENTAL-MODEL.md).
+
+## Learning from Mistakes
+
+You MUST log learnings about the `pbir` CLI, including avoiding mistakes or gotchas, unexpected results, user expectations and design preferences in the project's memory file, such as:
+
+- **Claude Code:** `.claude/rules/pbir-cli.md`
+- **Cursor:** `.cursor/rules/pbir-cli.mdc`
+- **GitHub Copilot:** `.github/instructions/pbir-cli.instructions.md`
+
+You must be concise only log learnings that lead to improved, general performance and NOT very specific examples. This is NOT a change log, and you must treat this learning file as a valuable finite neuronal resource, pruning it, avoiding redundancy and making connections or references to examples.
+
+## How to use `pbir`
+
+### General workflow
+
+1. Explore the report: The report must be in PBIR format and can be pbip, pbir definition only, or PBIX. Prefer either pbir or pbip
+2. Identify the model: Reports generally should be "thin reports" connected to a remote model in Power BI or Fabric
+3. Ask user for clarification: If the user provided a vague or open-ended instruction, consult **`references/vague-prompts.md`** and use `AskUserQuestion` tool as many times as needed to understand their expectations and the report context
+4. Formulate a plan: Plan out what changes are necessary. If you need to create new reports, pages, or visuals, draft a wireframe or mock-up for the user to approve first
+5. Make changes: Search for relevant files and examples in `references/` and in related skills like `pbi-report-design`
+6. Validate changes: Run `pbir validate`. You can ask the user permission to view the report by publishing it to a sandbox workspace in Power BI or Fabric with `pbir publish` and then using tools like `chrome-mcp` or devtools CLI or playwright to view the report to see if it renders as expected
+7. Ask user for feedback: Inform the user that iteration is expected and push back on user expectations for single-prompt or one-shot workflows
+8. Record learnings: Document learnings concisely in your rules
+
+### Path syntax
+
+`pbir` uses a filesystem paradigm for identifying reports, pages, visuals etc. and glob syntax for bulk operations.
 
 Format: `ReportName.Report/PageName.Page/VisualName.Visual`
 
 - Type suffixes (`.Report`, `.Page`, `.Visual`) are required
 - Quote paths with spaces: `"My Report.Report/Dashboard.Page"`
-- Glob patterns for bulk: `"Report.Report/**/*.Visual"`
-- Glob patterns require `--force/-f` for both `set` and `rm` commands
-- Properties via dot: `"Report.Report/Page.Page/Visual.Visual.title.fontSize"`
+- Use glob patterns for bulk operations: `"Report.Report/**/*.Visual"` (requires `--force/-f` for `set` and `rm`)
+  - `*.Visual` -- all visuals on current page
+  - `Page.Page/*.Visual` -- all visuals on a specific page
+  - `**/*.Visual` -- all visuals across all pages
+  - `**/card*.Visual` -- visuals whose name starts with "card"
+  - `**/*.Report/**/*.Visual` -- all visuals across all reports
+- Properties via `get` or `set` and dot notation: `"Report.Report/Page.Page/Visual.Visual.title.fontSize"`
 - Filters/bookmarks: `"Report.Report/filter:Name"`, `"Report.Report/bookmark:Name"`
 - If multiple reports match, disambiguate with parent folder prefix
 - Workspace destinations use `.Workspace` suffix: `"My Workspace.Workspace/Report.Report"`
 
-## Related Skills
-
-- **`pbir-format`** -- load this skill to understand PBIR JSON file structure (visual.json, page.json, expressions, theme inheritance). Required before reading or debugging raw report files.
-- **`pbip-format`** -- load for PBIP project structure (definition.pbir, .platform, folder layout) and format conversion (PBIP/PBIX/PBIR).
-- **`create-pbi-report`** -- step-by-step guided workflow for creating reports from scratch.
-- **`pbi-report-design`** -- design best practices, layout guidelines, and visual hierarchy principles.
 
 ## Critical Rules
 
-1. **NEVER edit report JSON files directly.** Always use the CLI (`pbir visuals bind`, `pbir set`, etc.). The CLI handles field type resolution, schema validation, and structural integrity that raw JSON manipulation bypasses. If raw PBIR JSON must be read for debugging, load the **`pbir-format`** skill first to understand the structure. Editing JSON directly is the #1 source of broken reports.
+You must follow all of the below rules
 
-2. **Column vs Measure matters.** Measures bound as Columns (or vice versa) produce "something is wrong with one or more fields" errors in Power BI Desktop that pass schema validation but fail at runtime. The CLI (`pbir visuals bind`) and object model (`visual.bind_field()`) auto-detect extension measures from `reportExtensions.json` and model measures from the semantic model. When auto-detection isn't possible (no model connection, no extension match), the default is Column. Override explicitly with `-t Measure` in the CLI or `field_type="Measure"` in `bind_field()`.
+0. **ASK user for clarifications and push back on one-shot prompt requests.** Pursue an iterative multi-step way-of-working
 
-3. **Use `pbir visuals bind` to fix broken bindings.** To change a field's type from Column to Measure: clear the role, re-add with the correct type:
-   ```bash
-   pbir visuals bind "Visual.Visual" -c "Values"
-   pbir visuals bind "Visual.Visual" -a "Values:Table.MeasureName" -t Measure
-   ```
+1. **CHECK references before starting work.** Identify relevant (references)[references/] and (examples)[examples/] that can help you understand the user requirements
 
-4. **Validate after every mutation.** Run `pbir validate "Report.Report"` after changes. Use `--qa` for overlap/overflow checks, `--fields` for model field verification, `--all` for everything.
+2. **NEVER edit report JSON files directly.** Always use `pbir` CLI commands. Use `pbir cat` or `pbir get` to inspect JSON or properties; use `pbir set` for any property not covered by a dedicated command.
 
-5. **Theme-first formatting.** Check `pbir visuals format` before applying bespoke formatting -- the theme may already set the property. Prefer `pbir theme set-formatting` for changes that apply to all visuals of a type. Reserve `pbir visuals title/background/border` for one-off overrides.
+3. **Discover before setting.** Run `pbir schema containers <type>` then `pbir schema describe <type>.<container>` to find correct property names, types, ranges, and enums before formatting. Do not guess property names
 
-6. **Discover before setting.** Run `pbir schema containers <type>` then `pbir schema describe <type>.<container>` to find correct property names, types, ranges, and enums before formatting. Do not guess property names.
+4. **Theme-first formatting.** Check `pbir visuals format` before applying bespoke formatting -- the theme may already set the property. Prefer `pbir theme set-formatting` for changes that apply to all visuals of a type. Reserve `pbir visuals title/background/border` for one-off overrides
+
+5. **Validate after changes.** Run `pbir validate "Report.Report"` after changes. Use `--qa` for overlap/overflow checks, `--fields` for model field verification, `--all` for everything
+
 
 ## Core Workflows
 
 ### Exploration and Analysis
 
-Understand existing reports before modifying. **Always check page dimensions and existing visual positions before adding or resizing visuals** -- the object model validates that visuals fit within page bounds, so setting position/size without knowing the page dimensions will cause errors.
+Understand existing reports before modifying. **Always check page dimensions and existing visual positions before adding or resizing visuals** setting position/size without knowing the page dimensions causes errors.
 
 ```bash
 pbir ls                                          # Find all reports
@@ -197,14 +224,16 @@ Multiple predicates are comma-separated and ANDed: `--where "visual_type=card,wi
 ### Conditional Formatting
 
 ```bash
-# Measure-driven CF
+# Create CF (structural — pbir visuals cf)
 pbir visuals cf "Visual" --measure "labels.color _Fmt.StatusColor"
-
-# Gradient CF
 pbir visuals cf "Visual" --gradient --field "Table.Field" --min-color bad --max-color good
-
-# Data bars CF
 pbir visuals cf "Visual" --data-bars --field "Table.Field"
+
+# Read / edit / remove CF (dot-path — pbir set / pbir get)
+pbir get "Visual.dataPoint.fill.cf"                             # summary
+pbir set "Visual.dataPoint.fill.cf.gradient.min.color" --value "bad"
+pbir set "Visual.dataPoint.fill.cf" --remove                    # or --clear
+pbir get "Report.Report/**/*.Visual.**.cf"                       # bulk read
 ```
 
 For gradient/rules/icons/data bars options, copy/remove/convert, and best practices, consult **`references/conditional-formatting.md`**.
@@ -214,6 +243,7 @@ For gradient/rules/icons/data bars options, copy/remove/convert, and best practi
 ```bash
 pbir visuals action "Visual" --type PageNavigation --target "Details"  # Set action
 pbir add bookmark "Report.Report" "Q1 View"                           # Create bookmark
+pbir bookmarks page "Report.Report" "Q1 View" "Details"               # Set bookmark target page
 pbir pages drillthrough "Report/Details.Page" --table T --field F     # Add drillthrough
 pbir pages set-tooltip "Report/Tooltip.Page"                          # Configure tooltip
 ```
@@ -244,6 +274,7 @@ pbir filters list "Report.Report"
 
 For comprehensive audit checklist, consult **`references/audit-report.md`**.
 
+
 ## Command Reference
 
 For full syntax with all flags, consult **`references/cli-reference.md`**.
@@ -263,6 +294,7 @@ pbir tree "path":
 
 pbir cat "path":
   use: inspect raw JSON for a page, visual, theme, or reportExtensions
+  note: does NOT support filters or bookmarks -- use `pbir filters list --json` or `pbir bookmarks json` instead
 
 pbir find "glob":
   use: locate visuals by name/pattern across reports
@@ -318,6 +350,10 @@ pbir cp "from" "to":
 
 pbir mv "from" "to":
   use: move or rename pages/visuals
+
+pbir visuals rename "path" "new-name":
+  use: rename a visual's folder (human-readable alias)
+  flags: --sanitize (auto-clean special chars), --force (glob patterns)
 
 pbir rm "path" -f:
   use: remove pages, visuals, filters, bookmarks, measures
@@ -434,40 +470,92 @@ pbir visuals properties "path":
 See **`references/conditional-formatting.md`** for CF types, measure-based CF, and best practices.
 
 ```yaml
-pbir visuals cf "path":
-  use: list all CF rules on a visual
+# Read / edit / remove CF via dot-path on pbir set / pbir get
+pbir get "...Visual.<container>.<prop>.cf":
+  use: read CF summary (kind, measure, stops/cases, source)
+  example: pbir get "V.Visual.dataPoint.fill.cf"
 
+pbir get "...Visual.<container>.<prop>.cf.<kind>.<leaf>":
+  use: read a scalar CF leaf
+  example: pbir get "V.Visual.dataPoint.fill.cf.gradient.min.color"
+
+pbir get "...Visual.**.cf":
+  use: bulk CF read across a glob (replaces `visuals cf --list`)
+  example: pbir get "Report.Report/**/*.Visual.**.cf"
+
+pbir set "...Visual.<container>.<prop>.cf.<kind>.<leaf>":
+  use: scalar leaf edit on an existing CF entry
+  example: pbir set "V.Visual.dataPoint.fill.cf.gradient.min.color" --value "bad"
+  note: kind mismatch hard-errors; no automatic morphing
+
+pbir set "...Visual.<container>.<prop>.cf":
+  use: wipe a CF entry (aliases: --remove / --clear)
+  example: pbir set "V.Visual.dataPoint.fill.cf" --remove
+
+# Structural authoring — create, copy, convert — stays on `pbir visuals cf`
 pbir visuals cf "path" --measure:
-  use: apply measure-based CF
+  use: create measure-based CF
   args: "component.property Table.Measure"
 
-pbir visuals cf "path" --info:
-  use: inspect a CF rule
-  args: component.property
+pbir visuals cf "path" --gradient --field "Table.Field":
+  use: create gradient CF
+  flags: --min-color, --max-color, --mid-color, --on container.prop
 
-pbir visuals cf "path" --remove:
-  use: remove a CF rule
-  args: component or component.property
+pbir visuals cf "path" --rules --field "Table.Field":
+  use: create rules CF
+  flags: --rule "op value color" (repeatable)
 
-pbir visuals cf "path" --set-color:
-  use: update gradient colors
-  args: "component.property min=bad max=good"
+pbir visuals cf "path" --data-bars --field "Table.Field":
+  use: create data bars CF
+  flags: --positive-color, --negative-color
+
+pbir visuals cf "path" --icons --field "Table.Field":
+  use: create icons CF
+  flags: --rule "op value icon" (repeatable)
 
 pbir visuals cf "path" --theme-colors:
   use: convert hex to theme tokens
   args: component.property
 
 pbir visuals cf "path" --to-measure:
-  use: convert gradient to extension measure
+  use: convert gradient/rules to extension measure
   args: component.property
 
-pbir visuals format-field:
-  use: per-field formatting (positional args)
-  args: VISUAL COMPONENT PROPERTY -f "Table.Field" -v value
+pbir visuals cf "Target.Visual" --copy-from "Source.Visual":
+  use: copy all CF entries between visuals
 
-pbir visuals format-state:
-  use: interaction state formatting
-  args: VISUAL COMPONENT PROPERTY -s hover/selected -v value
+# Deprecated: --info, --list, --has, --set-color, --remove, --remove-all
+# These redirect to the pbir set / pbir get dot-path forms above and exit
+# non-zero. See references/conditional-formatting.md for the rewrite table.
+
+pbir set "...Visual.<container>.field(Table.Column).<prop>":
+  use: per-field formatting via selector mini-language on pbir set
+  example: pbir set "V.Visual.dataPoint.field(Sales.Revenue).fill" --value "#118DFF"
+  flags: --value, --json, --remove, --no-validate, -f (globs), --where, --dry-run
+  note: Hex on color-named props is auto-wrapped in solid.color
+
+pbir set "...Visual.<container>.series(Table.Column=Value).<prop>":
+  use: per-category-value formatting via scopeId selector
+  example: pbir set "V.Visual.dataPoint.series(Cities.City=Antwerp).fill" --value "#E66C37"
+
+pbir set "...Visual.<container>.id(N).<prop>":
+  use: id-keyed entries (reference lines, error bars)
+  example: pbir set "V.Visual.y1AxisReferenceLine.id(2).lineColor" --value "#FF0000"
+
+pbir set "...Visual.<container>.hover|press|selected.<prop>":
+  use: interaction-state formatting
+  example: pbir set "V.Visual.background.hover.color" --value "#F5F5F5"
+
+pbir get "...Visual.<container>.field(X).<prop>":
+  use: read the current override for a given selector
+
+pbir set "...Visual.<container>.field(X).<prop>" --remove:
+  use: drop the override (falls back to visual/theme default)
+
+# Deprecated redirects (removed in 1.0.0) -- they print the equivalent
+# `pbir set` command and exit non-zero:
+pbir visuals format-field  -> pbir set "...field(X).<prop>"
+pbir visuals format-state  -> pbir set "....hover|press|selected.<prop>"
 ```
 
 ### Theme Operations
@@ -550,9 +638,13 @@ pbir filters pane-hide/pane-collapse/pane-get/pane-set/pane-card:
   use: filter pane appearance
   flags: --width, --bg-color
 
-pbir bookmarks list/rename/data/display/visuals/json:
+pbir bookmarks list/rename/data/display/visuals/page/json:
   use: bookmark management
   flags: --off (disable capture)
+
+pbir bookmarks page "path" "bookmark" "page":
+  use: set which page a bookmark navigates to
+  args: report path, bookmark name, page name (omit page to show current)
 ```
 
 ### Page Operations
@@ -562,8 +654,9 @@ pbir add page "path":
   use: add a new page
   flags: -n "Name", --width/height, --from-template, --list-templates
 
-pbir pages rename:
-  use: rename a page
+pbir pages rename "path" "new name":
+  use: rename a page (updates display name and folder)
+  flags: --force (skip confirmation)
 
 pbir pages resize:
   use: change page dimensions
@@ -593,38 +686,6 @@ pbir pages active-page:
   use: set default landing page
 ```
 
-### Infrastructure and Fabric
-
-```yaml
-pbir connect:
-  use: set active report/workspace connection
-  flags: --clear, --profile
-
-pbir profile list/save/show/remove:
-  use: manage saved connection profiles
-
-pbir publish:
-  use: deploy report to Fabric workspace
-
-pbir download:
-  use: download report from Fabric
-  flags: -o ./dir, -F pbip
-
-pbir validate "path":
-  use: validate structure, schema, fields, QA
-  flags: --fields, --qa, --all, --strict, --json, --tree, --allow-download-schemas
-
-pbir schema fetch/status/check/upgrade:
-  use: manage JSON schemas
-  flags: --yes, -f
-
-pbir config show/init/set:
-  use: CLI configuration
-
-pbir setup:
-  use: initialize agent context files
-  flags: --claude-code, --force
-```
 
 ## Global Flags
 
@@ -637,6 +698,17 @@ Top-level flags -- place before the subcommand: `pbir -q new report ...`, NOT `p
 -f / --force: skip confirmation prompts (required for glob patterns in set and rm)
 ```
 
+
+## Common Mistakes
+
+- **`pbir cat` does not support filters or bookmarks.** Use `pbir filters list --json` or `pbir bookmarks json` instead.
+- **`pbir publish` uses positional args**, not `--workspace`. Correct: `pbir publish "Report.Report" "Workspace.Workspace/Report.Report" -f`
+- **`pbir filters list` has no `-v` flag.** Use `--json` for detailed output.
+- **Do not convert to PBIX then publish the PBIR folder.** If converting to PBIX, publish the `.pbix` file directly. If publishing PBIR, skip conversion entirely.
+- **`pbir pages rename` renames folders only** -- it does not change page IDs or display names. Use `--to` for single page folder rename.
+- **Always run `pbir <command> --help`** before using an unfamiliar command to confirm exact syntax.
+
+
 ## User Interaction
 
 Use `AskUserQuestion` to interview the user before executing. This is important for:
@@ -646,6 +718,7 @@ Use `AskUserQuestion` to interview the user before executing. This is important 
 - **Complex requirements**: Deneb vs core visual, CF logic, page layout -- discuss trade-offs first
 - **Ambiguous field mapping**: When the model has multiple plausible fields, discuss intent
 - **Clearing formatting**: ALWAYS confirm before `pbir visuals clear-formatting` -- it is irreversible
+
 
 ## Validation
 
@@ -663,6 +736,7 @@ Run `pbir validate "Report.Report"` after **every mutation**. This catches broke
 
 **Schema version errors**: Fix with `pbir schema fetch --yes` then `pbir schema upgrade "Report.Report"`.
 
+
 ## Reference Files
 
 ```yaml
@@ -673,6 +747,8 @@ references/add-new-visual.md: adding visuals, layout patterns, bulk creation
 references/fields-and-bindings.md: field binding, Column vs Measure types, swapping fields, rebinding
 references/format-visuals.md: formatting workflow, property discovery, glob patterns
 references/conditional-formatting.md: CF types, measure-based CF, copy/remove/update/convert
+references/reference-lines.md: reference-line entries on chart axes; pbir visuals reference-line and styling via pbir set
+references/error-bars.md: error bars and bullet markers on chart visuals; pbir visuals error-bars and styling via pbir set
 references/modifying-theme.md: theme inspection, colors, text classes, fonts
 references/apply-theme.md: applying/copying/saving theme templates
 references/converting-reports.md: format conversion, thick/thin split, merge, rebind
@@ -681,5 +757,17 @@ references/visual-calculations.md: visual calculations (RUNNINGSUM, RANK, etc.)
 references/filters.md: filter types (Categorical, TopN, Advanced, RelativeDate), management, pane styling
 references/bookmarks.md: bookmark management, copying, button references
 references/audit-report.md: report quality audit checklist
+references/vague-prompts.md: handling underspecified prompts; targeted questions, sensible defaults
 references/property-catalogue.md: offline property index (49 types, 15 containers, 12,600+ slots)
+references/visualTypes/*.md: per-visual-type design rules, CLI commands, and best practices
+examples/visuals/default/*.json: minimal visual.json files with no bespoke formatting (theme defaults only)
+examples/visuals/formatted/*.json: visual.json files with bespoke formatting, CF, filters, or advanced patterns
 ```
+
+
+## Related Skills
+
+- `pbi-report-design`: Use for design best practices and guidelines for reports
+- `pbir-format`: Use when falling back to editing report JSON files directly
+- `pbip-format`: Use for working with pbip structure
+- `create-pbi-report`: Use to follow step-by-step instructions for creating new reports
