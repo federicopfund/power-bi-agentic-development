@@ -1,6 +1,6 @@
 ---
 name: fabric-cli
-version: 0.26.1
+version: 26.24.1
 description: Expert guidance for using the Fabric CLI (`fab`) to fully interact with Fabric workspaces, items, and configuration. Automatically invoke this skill whenever the user mentions "Fabric" or "Power BI Service" or a "Fabric/Power BI workspace".
 ---
 
@@ -10,6 +10,7 @@ Guidance for using `fab` to programmatically manage Fabric & Power BI service
 
 - Install via `uv tool install ms-fabric-cli` (get `uv` via `winget install uv` or `brew install uv`)
 - Fabric CLI is for working with the Cloud environment and not local files; it works with Power BI Pro, PPU, or Fabric; you DO NOT need a Fabric SKU to use the Fabric CLI
+- Keep `fab` current: check the installed version against the latest `ms-fabric-cli` release and upgrade with `uv tool upgrade ms-fabric-cli` unless the user has pinned a specific version. Discover commands and flags with `fab --help` and `fab <command> --help` rather than hard-coding behavior; the CLI surface changes regularly
 
 > [!IMPORTANT] 
 > Any time you encounter errors, user preferences or learnings when using the Fabric cli, ALWAYS note these down in the user memory rules, i.e. `.claude/rules/fabric-cli.md` for future improvement. 
@@ -23,7 +24,7 @@ Guidance for using `fab` to programmatically manage Fabric & Power BI service
 
 ## Critical general rules
 
-- IMPORTANT: The first time you use `fab` run check that it is up to date to the latest version and run `fab auth status`; If user isn't authenticated, ask them to run `fab auth login`
+- IMPORTANT: The first time you use `fab` run check that it is up to date to the latest version (upgrade with `uv tool upgrade ms-fabric-cli` unless the user has pinned a version) and run `fab auth status`; If user isn't authenticated, ask them to run `fab auth login`
 - Always use `fab --help` and `fab <command> --help` the first time you use a command to understand its syntax
 - You must search the skill /references/ for relevant reference files that explain certain commands, examples, scripts, or workflows before you start using `fab`
 - Before first use, ask the user if they have Fabric admin access, sensitivity labels or DLP policies, any API restrictions, or preferences for Fabric/Power BI API usage; remind user to add this to memory files
@@ -52,8 +53,9 @@ You must read and understand the common list of operations with simple examples
 
 0. Check the commands, syntax, and auth status: `fab --help` and `fab auth status`
 1. Check if the item exists if the user gave the workspace and item name: `fab exists "spaceparts-dev.Workspace/spaceparts-otc-full.SemanticModel"`
-2. Find the workspace: `fab ls`
-3. Find the item: `fab ls "Workspace Name.Workspace"`
+2. Find an item by name across every workspace the user can see: `fab find 'sales' -P type=Report -l` (substring on name, description, workspace; `-P type=` to filter, `-l` for ids; `-q '<jmespath>'` for client-side filter/projection). For governance workflows that need last visit / last refresh / owner / storage mode / capacity SKU, use [`scripts/search_across_workspaces.py`](./scripts/search_across_workspaces.py); see [workspaces.md](./references/workspaces.md#cross-workspace-search) for the delta.
+3. Find the workspace: `fab ls`
+4. Find the item: `fab ls "Workspace Name.Workspace"`
 4. Check the commands for that item: 
    - `fab desc` to get itemTypes
    - `fab desc .<ItemType>` for commands i.e. `fab desc .SemanticModel`
@@ -247,7 +249,8 @@ Fabric discovery follows a drill-down pattern:
   - Get item details: `fab get "ws.Workspace/Item"`
   - Pull a single field: `fab get "ws.Workspace" -q "id"`
 - Cross-workspace search:
-  - Rich metadata, no admin required: [`scripts/search_across_workspaces.py`](./scripts/search_across_workspaces.py)
+  - Routine search across name, description, workspace: `fab find '<text>' -P type=<Type> -l`
+  - Governance fields not in `fab find` (last visit, last refresh, owner, storage mode, capacity SKU, Copilot readiness): [`scripts/search_across_workspaces.py`](./scripts/search_across_workspaces.py); see [workspaces.md](./references/workspaces.md#cross-workspace-search) for the delta
   - Downstream reports for a given model: [`scripts/get-downstream-reports.py`](./scripts/get-downstream-reports.py)
   - Tenant-wide admin APIs: [admin.md](./references/admin.md)
 
@@ -550,7 +553,7 @@ Check references before deploying:
 
 **Scripts** (scripts that you can execute):
 
-- [search_across_workspaces.py](./scripts/search_across_workspaces.py) ; cross-workspace item search via DataHub V2 API; filters by type, owner, storage mode, last visited, capacity SKU
+- [search_across_workspaces.py](./scripts/search_across_workspaces.py) ; cross-workspace governance complement to `fab find` (last visit, last refresh, owner, storage mode, capacity SKU, Copilot readiness); see [workspaces.md](./references/workspaces.md#cross-workspace-search) for when to choose which
 - [get-downstream-reports.py](./scripts/get-downstream-reports.py) ; find all reports connected to a given semantic model across accessible workspaces (no admin required)
 - [execute_dax.py](./scripts/execute_dax.py) ; execute DAX queries against semantic models; output as table, csv, or json
 - [query_lakehouse_duckdb.py](./scripts/query_lakehouse_duckdb.py) ; query lakehouse or warehouse Delta tables via DuckDB against OneLake (reuses `az login`); output as table, csv, or json
